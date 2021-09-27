@@ -53,12 +53,33 @@ def sampling_matrices(n):
     A = A + c * B 
     return(A, B)
 
+def check_equilibrium(plant_ab, soil_ab, tol):
+    '''
+    Check wether the obtain equilibrium is a real one by checking if either:
+        1. The abundances have remained constant for a while
+        2. The abundances are periodic.
+
+    Parameters: 
+        plant_ab (txn): Plant abundance matrix across integrated t_span
+        soil_ab (txn): Soil abundance matrix across integrated t_span
+
+    Returns:
+        equil (bool): Boolean stating whether the equilibrium was real (True) or
+                      not (False).
+    '''
+
+    #Get rid of species below the tolerance threshold
+    plant_ab = plant_ab[plant_ab[:,-1] > tol, :]
+    #Check if the equilibrium vector remains constant for a while.
+    equilibrium = False
+    return equilibrium
+
 
 def main(argv):
     '''Main function'''
     
     #Number of plants (and soils)
-    n = 10
+    n = 5
     n_sim = 100
     #Extinct threshold
     tol = 1e-3
@@ -69,8 +90,22 @@ def main(argv):
     for i in progressbar.progressbar(range(n_sim)):
         #Set matrices
         #A, B = sampling_matrices(n, n)
-        A = np.random.random(size = (10, 10))
-        B = np.diag(np.random.random(size = 10))
+        A = np.random.random(size = (n, n))
+        #Ensure that A is not singular and feasible
+        sing_unfeas = True
+        while sing_unfeas:
+            try:
+                Ainv = np.linalg.inv(A)
+                #Calculate equilibrium signs
+                eq_prop = np.linalg.inv(A) @ np.ones(n).reshape(n, 1)
+                if np.all(eq_prop > 0):
+                    sing_unfeas = False
+                else:
+                    raise Exception('Matrix A has unfeasible equilibrium')
+            except:
+                A = np.random.random(size = (n, n))
+        #Ensure that the system is feasible
+        B = np.diag(np.random.random(size = n))
         params = {'A':A,
                   'B':B, 
                   'n':n,
@@ -84,6 +119,9 @@ def main(argv):
         sol = solve_ivp(lambda t,z: model(t,z, params),
                         tspan, z0,
                         method = 'BDF', atol = 0.0001 )
+        #Check for equilibrium
+        #check_equilibrium(sol.y[0:n,:], sol[n:2*n,:])
+
         #Check for convergence
         if not all(sol.y[:,-1] <= 1):
             #Skip this iteration
@@ -91,11 +129,15 @@ def main(argv):
         #Get plant and soil abundances
         plant_ab = sol.y[0:n, -1]
         soil_ab = sol.y[n:2*n, -1]
-        #Number of plant and soil survivors
-        n_plants[i] = len(plant_ab[(plant_ab > tol) & (plant_ab <= 1)])
-        n_soils[i] = len(soil_ab[(soil_ab > tol) & (soil_ab <= 1)])
         if (n_plants[i] > 2) | (n_soils[i] > 2):
-            #Plot 
+            #In the case that we have more than 2 plants or soils in the final
+            #community, re-integrate for another 2000 timesteps
+            #Set initial conditions
+            z0 = list(plant_ab) + list(soil_ab)
+            #Solve diferential equations
+            sol = solve_ivp(lambda t,z: model(t,z, params),
+                            tspan, z0,
+                            method = 'BDF', atol = 0.0001 )
             for i in range(np.shape(sol.y)[0]):
                 linestyle = 'solid'
                 color = 'green'
@@ -105,6 +147,15 @@ def main(argv):
                 plt.plot(sol.t, sol.y[i,:], linestyle = linestyle, 
                          color = color)
             plt.show()
+            import ipdb; ipdb.set_trace(context = 20)
+            #Check for convergence
+            if not all(sol.y[:,-1] <= 1):
+                #Skip this iteration
+                continue
+        else:
+            #Number of plant and soil survivors
+            n_plants[i] = len(plant_ab[(plant_ab > tol) & (plant_ab <= 1)])
+            n_soils[i] = len(soil_ab[(soil_ab > tol) & (soil_ab <= 1)])
     plt.hist(n_plants, bins = [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5])
     plt.show()
     plt.hist(n_soils, bins = [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5])

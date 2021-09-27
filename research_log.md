@@ -11,6 +11,12 @@
 
 Sometimes I obtain coexistance of more than 2 soil or plants when sampling A at random. is this a mistake of implementation, or that the coexistence conditions are being met by chance? Check this. 
 
-#### Sep 23,2021
+#### Sep 27,2021
+
+I have implemented Zachs feedback about sampling real numbers instead of integers when sampling A and B without constraints, in order to ensure non-coexistence. Now its a lot better, I only get a few more-than-two plant communities. What I am going to do to fix this is: 
+
+1. Integrate dynamics
+2. Get rid of extinct species (with a tolerance of tol = 1e-9)
+3. Reintegrate dynamics without those species until there is only 2 species.
 
 
