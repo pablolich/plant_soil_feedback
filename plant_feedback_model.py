@@ -23,50 +23,43 @@ def model(t, z, params):
     Diferential equations of plant-feedback model.
     '''
     #Unpack parameter values
-    A, B, n_p, n_m = map(params.get, ('A', 'B', 'n_p', 'n_m'))
+    A, B, n, n = map(params.get, ('A', 'B', 'n', 'n'))
     #Separate plant and soil vecotrs and reshape
-    p = np.array(z[0:n_p]).reshape(n_p, 1)
-    q = np.array(z[n_p:n_p+n_m]).reshape(n_m, 1)
+    p = np.array(z[0:n]).reshape(n, 1)
+    q = np.array(z[n:2*n]).reshape(n, 1)
     #Create column vector of ones
-    Ip = np.ones(n_p).reshape(n_p, 1)
-    Iq = np.ones(n_m).reshape(n_m, 1)
+    Ip = np.ones(n).reshape(n, 1)
+    Iq = np.ones(n).reshape(n, 1)
     #Model equations
     dpdt = np.diag(p.transpose()[0]) @ (A @ q - \
             (p.transpose()[0] @ A @ q) * Iq) 
     dqdt = np.diag(q.transpose()[0]) @ (B @ p - \
             (q.transpose()[0] @ B @ p) * Ip)
-    return(list(dpdt.reshape(n_p)) + list(dqdt.reshape(n_m)))
+    return(list(dpdt.reshape(n)) + list(dqdt.reshape(n)))
 
-def sampling_matrices(n_p, n_m):
+def sampling_matrices(n):
     '''
     Sampling parameters to construct A and B supporting full coexistence
     '''
-    #Sample d_j's
-    d_vec = np.random.rand(n_p)
-    #Sample c_j's
-    c_vec = np.random.rand(n_p)
-    #Sample a constant c (less than zero)
-    c = -1*abs(np.random.rand(1))
-    #Construct off-diagonal elements of matrix of the rescaled game C
-    C_vec =  -d_vec/c
-    C = np.diag(C_vec) @ np.ones(shape = (n_p, n_p))
-    #Sample diagonals of C 
-    c_diag = np.random.rand(n_p)
-    np.fill_diagonal(C, c_diag)
-    #Create matrices
-    A = C + c_vec.reshape(n_p, 1)
-    B = c*C.T + d_vec
+    #Random (positive) diagonal matrix
+    B = np.diag(np.random.rand(n)) 
+    #Random negative constant
+    c = -np.random.rand(1)    
+    #Random vector by which to shift cols of A (+1 to ensure A > 0)
+    col_shifts = np.ones(n) + np.random.random(n) 
+    #First create matrix of constant columns
+    A = np.ones(shape = (n, n)) @ np.diag(col_shifts)
+    #Make A a rescaled version of B
+    A = A + c * B 
     return(A, B)
 
 
 def main(argv):
     '''Main function'''
     
-    #Number of plants
-    n_p = 10
-    #Number of soil communities
-    n_m = 10
-    n_sim = 10000
+    #Number of plants (and soils)
+    n = 10
+    n_sim = 100
     #Extinct threshold
     tol = 1e-3
     #Preallocate
@@ -75,18 +68,18 @@ def main(argv):
 
     for i in progressbar.progressbar(range(n_sim)):
         #Set matrices
-        A, B = sampling_matrices(n_p, n_m)
-        #A = np.random.randint(10, size = (10, 10))
-        #B = np.diag(np.random.randint(10, size = 10))
+        #A, B = sampling_matrices(n, n)
+        A = np.random.random(size = (10, 10))
+        B = np.diag(np.random.random(size = 10))
         params = {'A':A,
                   'B':B, 
-                  'n_p':n_p,
-                  'n_m':n_m
+                  'n':n,
+                  'n':n
                  }
         #Create time vector
-        tspan = tuple([1, 200])
+        tspan = tuple([1, 2000])
         #Set initial conditions
-        z0 = list(0.1*np.ones(n_p)) + list(0.1*np.ones(n_m))
+        z0 = list(np.ones(2*n)/n)
         #Solve diferential equations
         sol = solve_ivp(lambda t,z: model(t,z, params),
                         tspan, z0,
@@ -96,17 +89,17 @@ def main(argv):
             #Skip this iteration
             continue
         #Get plant and soil abundances
-        plant_ab = sol.y[0:n_p, -1]
-        soil_ab = sol.y[n_p:n_p + n_m, -1]
+        plant_ab = sol.y[0:n, -1]
+        soil_ab = sol.y[n:2*n, -1]
         #Number of plant and soil survivors
         n_plants[i] = len(plant_ab[(plant_ab > tol) & (plant_ab <= 1)])
         n_soils[i] = len(soil_ab[(soil_ab > tol) & (soil_ab <= 1)])
-        if (n_plants[i] < 10) | (n_soils[i] < 10):
+        if (n_plants[i] > 2) | (n_soils[i] > 2):
             #Plot 
             for i in range(np.shape(sol.y)[0]):
                 linestyle = 'solid'
                 color = 'green'
-                if i > n_p:
+                if i > n:
                     linestyle = 'dashed'
                     color = 'black'
                 plt.plot(sol.t, sol.y[i,:], linestyle = linestyle, 
