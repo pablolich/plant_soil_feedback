@@ -23,7 +23,7 @@ def model(t, z, params):
     Diferential equations of plant-feedback model.
     '''
     #Unpack parameter values
-    A, B, n, n = map(params.get, ('A', 'B', 'n', 'n'))
+    A, B, n = map(params.get, ('A', 'B', 'n'))
     #Separate plant and soil vecotrs and reshape
     p = np.array(z[0:n]).reshape(n, 1)
     q = np.array(z[n:2*n]).reshape(n, 1)
@@ -72,7 +72,22 @@ def check_equilibrium(plant_ab, soil_ab, tol):
     plant_ab = plant_ab[plant_ab[:,-1] > tol, :]
     #Check if the equilibrium vector remains constant for a while.
     equilibrium = False
+
     return equilibrium
+
+def plant_soil_extinction(plant_ab, soil_ab, tol):
+    '''
+    Determine if extinct soils also have their corresponding plant extinct
+    '''
+    #Get indices of extinct soils
+    ext_soil_ind = set(np.where(soil_ab < tol)[0])
+    #Get indices of extinct plants
+    ext_plants_ind = set(np.where(plant_ab < tol)[0])
+    #Make sure that plants are contained in soil (that is, all numbers in 
+    #ext_soil_ind are also in ext_plants_ind
+    contained = ext_plants_ind.issubset(ext_soil_ind)
+    return contained
+
 
 
 def main(argv):
@@ -89,28 +104,29 @@ def main(argv):
 
     for i in progressbar.progressbar(range(n_sim)):
         #Set matrices
-        #A, B = sampling_matrices(n, n)
+        A, B = sampling_matrices(n)
         A = np.random.random(size = (n, n))
-        #Ensure that A is not singular and feasible
+        #Ensure that A is not singular and that it is feasible
         sing_unfeas = True
         while sing_unfeas:
             try:
+                #Check for non-singularity
                 Ainv = np.linalg.inv(A)
-                #Calculate equilibrium signs
+                #Calculate equilibrium signs to check for feasibility
                 eq_prop = np.linalg.inv(A) @ np.ones(n).reshape(n, 1)
                 if np.all(eq_prop > 0):
+                    #If both conditions hold use this A matrix
                     sing_unfeas = False
                 else:
+                    #Otherwise, raise an exception and sample another A matrix
                     raise Exception('Matrix A has unfeasible equilibrium')
             except:
                 A = np.random.random(size = (n, n))
-        #Ensure that the system is feasible
         B = np.diag(np.random.random(size = n))
         params = {'A':A,
                   'B':B, 
-                  'n':n,
                   'n':n
-                 }
+                  }
         #Create time vector
         tspan = tuple([1, 2000])
         #Set initial conditions
@@ -119,16 +135,17 @@ def main(argv):
         sol = solve_ivp(lambda t,z: model(t,z, params),
                         tspan, z0,
                         method = 'BDF', atol = 0.0001 )
-        #Check for equilibrium
-        #check_equilibrium(sol.y[0:n,:], sol[n:2*n,:])
-
-        #Check for convergence
-        if not all(sol.y[:,-1] <= 1):
-            #Skip this iteration
-            continue
         #Get plant and soil abundances
         plant_ab = sol.y[0:n, -1]
         soil_ab = sol.y[n:2*n, -1]
+        #Check for convergence and also check wether all extinct soils have 
+        #also their corresponding plant extinct too
+        correct = plant_soil_extinction(plant_ab, soil_ab, tol)
+        if  (not all(sol.y[:,-1] <= 1)) | (not correct):
+            #Skip this iteration
+            continue
+        #Check if this is true equilibrium
+        check_equilibrium(sol.y[0:n,:], sol[n:2*n,:])
         if (n_plants[i] > 2) | (n_soils[i] > 2):
             #In the case that we have more than 2 plants or soils in the final
             #community, re-integrate for another 2000 timesteps

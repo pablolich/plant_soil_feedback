@@ -19,4 +19,5 @@ I have implemented Zachs feedback about sampling real numbers instead of integer
 2. Get rid of extinct species (with a tolerance of tol = 1e-9)
 3. Reintegrate dynamics without those species until there is only 2 species.
 
-
+Non-parametrized case working correctly after implementing algorithm that ensures non-singular and with feasible equilibrium A matrices. 
+Parametrized case yielding either full coexistence, full extinction or (less frequently) something in between. To avoid this, try implementing the procedure dtailed above in steps 1-3.
