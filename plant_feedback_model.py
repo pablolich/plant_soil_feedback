@@ -53,11 +53,62 @@ def sampling_matrices(n):
     A = A + c * B 
     return(A, B)
 
+def find_sign_change(array):
+    '''
+    Detect sign changes in array
+    Output:
+        array: where 0 means there is no sign change with respect the previous
+               element, and 1 means that there is.
+    '''
+    asign = np.sign(array)
+    #Consider 0 as 'positive'
+    asign[np.where(asign == 0)[0]] = 1
+    return ((np.roll(asign, 1) - asign) != 0).astype(int)[1:]
+
+def find_peaks(time_series):
+    '''
+    Find the peaks of a periodic time series
+
+    Parameters: 
+        time_series (1xt): Vector of time series data.
+
+    Output:
+        peaks (dict): Dictionary with indices and values of peaks
+    '''
+    #Calculate vector of diferences
+    diff_vec = time_series[1:] - time_series[0:-1]
+    #Get a vector indicating where are sign changes 
+    sign_changes = find_sign_change(diff_vec)
+    #Get indices before and after the sign change 
+    import ipdb; ipdb.set_trace(context = 20)
+    ind_pairs = [(i+1, i+2) for i in sign_changes 
+                 if sign_changes[i] != sign_changes[i+1]]
+    #Initialize vectors to store peaks and indices where peaks are reached
+    n_peaks = len(ind_pairs)
+    peaks = np.zeros(n_peaks)
+    inds = peaks
+    for i in range(n_peaks):
+        #Find values of time_series at these two peak candidate, and select the
+        #maximum, because we are looking for peaks (not valleys)
+        peaks[i]= max(time_series[ind_pairs[i][0]], time_series[ind_pairs[i][1]])
+        #Store position where peak is reached (if there are various, take the
+        #midle position)
+        inds[i] = int(np.median(np.where(time_series == peaks[i])[0]))
+    #Pack and return
+    return zip(list(inds), list(peaks))
+    
+vector  = np.array([1, 2, 3, 3, 2, 1])
+peaks = find_peaks(vector)
+
 def check_equilibrium(plant_ab, soil_ab, tol, n, equilibrium, tol_float):
     '''
     Check wether the obtain equilibrium is a real one by checking if either:
         1. The abundances have remained constant for a while
-        2. The abundances are periodic.
+        2. The abundances are periodic. To check if the solution is periodic
+           we: 
+           2.1. Check that there are values of solution repeat
+           2.2. Check that value of solution at the peaks remains constant
+           2.3. Check that time between peaks remains constant
 
     Parameters: 
         plant_ab (txn): Plant abundance matrix across integrated t_span
@@ -103,8 +154,13 @@ def check_equilibrium(plant_ab, soil_ab, tol, n, equilibrium, tol_float):
     elif (np.all(last_count_plant > 1)) & (np.all(last_count_soil > 1)):
         return True
     #Check for periodicity
+    #First, check for 2.1
     elif (np.all(np.sum((diff_plant < tol_float), axis = 1) > 2)) & \
          (np.all(np.sum((diff_soil < tol_float), axis = 1) > 2)): 
+        ##If 2.1 is satisfied, check find the peaks of the periodic solution
+        #for i in range(n_r):
+        #    #For the plants
+        #    peaks_plants = find_peaks(
         return True
     #There are neither static equilibria nor periodic oscilations
     else:
@@ -257,7 +313,8 @@ def main(argv):
                 #Update matrices A and B
                 params['A'] = A_r
                 params['B'] = B_r
-                #Set initial conditions to the final state of previous integration
+                #Set initial conditions to the final state of previous 
+                #integration
                 z0 = list(np.hstack([plant_ab_rem[:,-1], soil_ab_rem[:, -1]]))
                 #Solve diferential equations again
                 sol = solve_ivp(lambda t,z: model(t,z, params),
