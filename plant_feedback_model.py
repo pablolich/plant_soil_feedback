@@ -23,15 +23,13 @@ def model(t, z, params):
     Diferential equations of plant-feedback model.
     '''
     #Unpack parameter values
-    A, B, n, n_p, n_s = map(params.get, ('A', 'B', 'n', 'n_p', 'n_s'))
-    if n_p != n_s:
-        import ipdb; ipdb.set_trace(context = 20)
+    A, B, n = map(params.get, ('A', 'B', 'n'))
     #Separate plant and soil vecotrs and reshape
-    p = np.array(z[0:n_p]).reshape(n_p, 1)
-    q = np.array(z[n_p:n_p + n_s]).reshape(n_s, 1)
+    p = np.array(z[0:n]).reshape(n, 1)
+    q = np.array(z[n:n + n]).reshape(n, 1)
     #Create column vector of ones
-    Ip = np.ones(shape = n_p).reshape(n_p, 1)
-    Iq = np.ones(shape = n_s).reshape(n_s, 1)
+    Ip = np.ones(shape = n).reshape(n, 1)
+    Iq = np.ones(shape = n).reshape(n, 1)
     #Model equations
     dpdt = np.diag(p.transpose()[0]) @ (A @ q - \
             (p.transpose()[0] @ A @ q) * Iq) 
@@ -132,21 +130,23 @@ def main(argv):
     
     #Number of plants (and soils)
     n = 5
-    n_sim = 100
+    nim = 100
     n_act = 0
     #Extinct threshold
     tol = 1e-9
     #Preallocate
-    n_plants = np.zeros(n_sim)
-    n_soils = np.zeros(n_sim)
+    nlants = np.zeros(nim)
+    noils = np.zeros(nim)
+    n_int_max = 10
 
-    while n_act <= n_sim:
+    while n_act <= nim:
         #Sample matrices A and B with H-S constraints
         #A, B = sampling_matrices(n)
         A = np.random.random(size = (n, n))
         #Ensure that A is not singular and that it is feasible
         sing_unfeas = True
         while sing_unfeas:
+            #Keep sampling A matrices until feasible and non-singular
             try:
                 #Check for non-singularity
                 Ainv = np.linalg.inv(A)
@@ -166,9 +166,7 @@ def main(argv):
         #Create dictionary of parameters
         params = {'A':A,
                   'B':B, 
-                  'n':n,
-                  'n_p':n,
-                  'n_s':n}
+                  'n':n}
         #Create time vector
         tspan = tuple([1, 2000])
         #Set initial conditions
@@ -198,7 +196,12 @@ def main(argv):
                                             tol, n, equilibrium = False, 
                                             tol_float = 1e-3)
         print('Test of equilibrium says that it is: ', equilibrium_val)
-        while not equilibrium_val:
+        n_int = 0
+        while (not equilibrium_val) & (n_int <= n_int_max):
+            #Keep integrating system until (1) it diverges, or (2) it converges
+            #to a valid equilibrium as determined with the check_equilibrium 
+            #function
+
             #Plot either way
             for i in range(np.shape(sol.y)[0]):
                 linestyle = 'solid'
@@ -212,24 +215,41 @@ def main(argv):
 
             #If not, update parameters for reintegration
             n_r = len(plant_ab_rem)
-            n_s = len(soil_ab_rem)
-            if n_r != n_s:
-                import ipdb; ipdb.set_trace(context = 20)
+            n = len(soil_ab_rem)
+            if n_r != n:
+                #The number of soils is not the same as the number of plants, 
+                #so we keep integrating until 1 or 2 (see above) are satisfied
+                #Get initial conditions of endpoints at previous integration
                 z0 = list(np.hstack([plant_ab[:,-1], soil_ab[:, -1]]))
                 #Solve diferential equations again
                 sol = solve_ivp(lambda t,z: model(t,z, params),
                                 tspan, z0,
                                 method = 'BDF', atol = 0.0001 )
-                #Check if true equilibrium is reached again
-                equilibrium_val = check_equilibrium(sol.y[0:n,:], 
-                                                    sol.y[n:2*n,:], 
-                                                    tol, n, equilibrium = False, 
-                                                    tol_float = 1e-3)
+                #Get plant and soil abundances
+                plant_ab = sol.y[0:n, :]
+                soil_ab = sol.y[n:2*n, :]
+                #Check for convergence 
+                if not all(sol.y[:,-1] <= 1):
+                    #Terminate while loop trying to find equilibruim for this 
+                    #system
+                    break
+                else:
+                    #Check if true equilibrium is reached again
+                    equilibrium_val = check_equilibrium(sol.y[0:n,:], 
+                                                        sol.y[n:2*n,:], 
+                                                        tol, n, 
+                                                        equilibrium = False, 
+                                                        tol_float = 1e-3)
+                    print('Keep integrating...: ', n_int, end = '\r')
+                    n_int += 1
             else:
+                #The number of soils is the same as the number of plants, but 
+                #equilibrium has not yet been reached. Then we keep integrating
+                #but we update the system by removing the extinct species.
                 #Update number of species and soils
                 params['n'] = n_r
-                params['n_p'] = n_r
-                params['n_s'] = n_s
+                params['n'] = n_r
+                params['n'] = n
                 A_r = np.delete(A, rows_rem_plant, 0)
                 A_r = np.delete(A_r, rows_rem_plant, 1)
                 B_r = np.delete(B, rows_rem_soil, 0)
@@ -243,11 +263,25 @@ def main(argv):
                 sol = solve_ivp(lambda t,z: model(t,z, params),
                                 tspan, z0,
                                 method = 'BDF', atol = 0.0001 )
-                #Check if true equilibrium is reached again
-                equilibrium_val = check_equilibrium(sol.y[0:n_r,:], 
-                                                    sol.y[n_r:2*n_r,:], 
-                                                    tol, n_r, equilibrium = False, 
-                                                    tol_float = 1e-3)
+                #Get plant and soil abundances
+                plant_ab = sol.y[0:n, :]
+                soil_ab = sol.y[n:2*n, :]
+                #Check for convergence and also check wether all extinct soils
+                #have their corresponding plant extinct too
+                #Check for convergence 
+                if not all(sol.y[:,-1] <= 1):
+                    #Terminate while loop trying to find equilibruim for this 
+                    #system
+                    break
+                else:
+                    #Check if true equilibrium is reached again
+                    equilibrium_val = check_equilibrium(sol.y[0:n_r,:], 
+                                                        sol.y[n_r:2*n_r,:], 
+                                                        tol, n_r,
+                                                        equilibrium = False, 
+                                                        tol_float = 1e-3)
+                    print('Keep integrating...: ', n_int, end = '\r')
+                    n_int += 1
         for i in range(np.shape(sol.y)[0]):
             linestyle = 'solid'
             color = 'green'
@@ -258,10 +292,10 @@ def main(argv):
                      color = color)
         plt.show()
         n_act += 1
-        print(n_act, end = '\r')
-    plt.hist(n_plants, bins = [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5])
+        print('Number of equilibria reached: ', n_act, end = '\r')
+    plt.hist(nlants, bins = [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5])
     plt.show()
-    plt.hist(n_soils, bins = [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5])
+    plt.hist(noils, bins = [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5])
     plt.show()
     return 0
 

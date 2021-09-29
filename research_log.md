@@ -37,6 +37,10 @@ I am almost done implementing the equilibrium check.
 
 Things todo for tomorrow are: 
 
-1. Figure out what the fuck is going on with divergent dinamics all of a suddeni its because it diverges on the second integration 
-2. Set a maximum number of integrations
-3. Get rid of n_s, n_p, since its always the same for me. 
+1. Figure out what the fuck is going on with divergent dinamics all of a suddeni its because it diverges on the second integration DONE
+2. Set a maximum number of integrations DONE
+3. Get rid of n_s, n_p, since its always the same for me. DONE
+
+#### Sep 29,2021
+
+
