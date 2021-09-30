@@ -19,7 +19,7 @@ def main(argv):
     #Number of plants (and soils)
     n = 5
     #Number of simulations
-    n_sim = 100
+    n_sim = 10
     #Current simulation number
     n_act = 0
     #Extinct threshold

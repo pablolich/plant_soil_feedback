@@ -54,3 +54,13 @@ Actually, I think I can implement 3 when I check 2, and then do a big iff that f
 #### Sep 30,2021
 
 Need to finish implementing cluster algorithm
+
+Stefano's talk:
+
+He told me that I can check for equilibrium if I evaluate the function H'(x, y) in page 130 of H-S book, and it is 0. For that, I need to find a c that satisfies this. I don't know if I can do that, because in the book they say that this constant of motion is only constant if 11.5 is valid for some c in R. 
+
+Todos thing for tomorrow
+
+1. Find peaks for all abundance curves
+2. When checking if gaps are 0, check that there are more than just 1 (maybe a percentage of the total number of peaks)
+3. Think a way of implementing Stefano's method. 

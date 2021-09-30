@@ -85,7 +85,7 @@ def cost(means):
     Calculates the cost of a certain clustering
     '''
     #Calculate total distance between all ordered pairs of group averages
-    dist = np.sum(abs(means[:, np.newaxis] - means))/2
+    dist = np.mean(abs(means[:, np.newaxis] - means))/2
     #Number of groups
     n_groups = len(means)
     return n_groups/dist
@@ -96,12 +96,66 @@ def cluster(vector):
     '''
     #Sort vector
     sorted_vec = np.sort(vector)
+    #Get indicers that would sort the vector
+    sorted_ind = np.argsort(vector)
+    #Get where are the sorted elements in the original vector
+    com, ind_original, ind2 = np.intersect1d(vector, sorted_vec, 
+                                             return_indices = True)
     #Get differences between elements
-    diff_vec = sorted_vec[1:] - sorted_vec[0:-1]
-    #Start with the minimum number of groups, and go up. Select the number of
-    #groups that minimize the cost
-    import ipdb; ipdb.set_trace(context = 20)
-    
+    gaps = sorted_vec[1:] - sorted_vec[0:-1]
+    #Count the number of 0 (that is, number of peaks with the same height)
+    n_zeros = len(np.where(gaps == 0)[0])
+    if n_zeros > 1:
+        #Equilibrium has been reached
+        return True
+    #Initialize vector of cost of each partition (there are as many partitions 
+    #as there are points in the time series)
+    cost_vec = np.zeros(len(sorted_vec))
+    #While switch and counter...
+    go = True
+    count = 0
+    #Set minimum number of groups for the first partition
+    n_groups = 2
+    while go:
+        #Store previous candidate partition
+        try: prev_candidate = candidate_partition
+        #If this is the first iteration, do nothing
+        except: pass
+        #Find the largest n_groups-1 gaps (note that one gap yields two groups)
+        max_gaps = np.flip(np.sort(gaps))[0:n_groups-1]
+        #Find indices of these gaps
+        gap, gap_ind, max_gap_ind = np.intersect1d(gaps, max_gaps, 
+                                                   return_indices = True)
+        #Get indices of these gaps in the original vector
+        gap_ind_origin = sorted_ind[gap_ind]
+        #Re-group the points in n_groups groups, divided by gap_ind
+        candidate_partition = np.split(sorted_vec, np.sort(gap_ind+1))
+        #Calculate mean of each group
+        mean_groups = [np.mean(i) for i in candidate_partition]
+        #Obtain cost of this partition
+        cost_vec[count] = cost(np.array(mean_groups))
+        #If this is the first iteration, do nothing, but increase counters
+        if count == 0: 
+            count += 1
+            n_groups += 1
+        #Check if the cost is getting better or worse in the next iteration 
+        #(we are okay with getting stuck in a local minima)
+        else: 
+            if cost_vec[count - 1] < cost_vec[count]:
+                #If previous partition was better, terminate the loop
+                go = False
+            else:
+                #If previous partition was worse, partition further 
+                count += 1
+                n_groups += 1
+    #Get number of elements in each group
+    n_each = [len(i) for i in prev_candidate]
+    #Create vector of membersips in the sorted vector
+    memberships_sorted = np.repeat(np.arange(len(n_each)), n_each)
+    #Assign memberships to each element of the original vector
+    memberships = memberships_sorted[ind_original]
+    return np.array([[vector],[memberships]])
+
 def check_equilibrium(plant_ab, soil_ab, tol, n, equilibrium, tol_float):
     '''
     Check wether the obtain equilibrium is a real one by checking if either:
@@ -168,12 +222,15 @@ def check_equilibrium(plant_ab, soil_ab, tol, n, equilibrium, tol_float):
         #Put plants and soils together
         sol = np.vstack([plant_ab, soil_ab])
         for i in range(2*n_r):
-            import ipdb; ipdb.set_trace(context = 20)
             peaks = find_peaks(sol[i,:])
             #Cluster them
-            peak_groups  = cluster(peaks)
+            peak_vals = np.array(list(peaks))[:,1]
+            peak_groups  = cluster(peak_vals)
+            if peak_groups == True:
+                return True
             #Check if the heights are bounded, increasing, or decreasing
-            
+            else:
+                import ipdb; ipdb.set_trace(context = 20)
         return True
     #There are neither static equilibria nor periodic oscilations
     else:
