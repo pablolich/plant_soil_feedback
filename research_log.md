@@ -43,4 +43,14 @@ Things todo for tomorrow are:
 
 #### Sep 29,2021
 
+Things todo for tomorrow
 
+1. Find peaks for plant and soil solutions DONE
+2. Only if peaks of all solutions are constant, step to the next if
+3. The next if is going to check whether the time between peaks is roughly constant
+
+Actually, I think I can implement 3 when I check 2, and then do a big iff that forces all peaks of all solutions to remain equally separated and at a constant height. 
+
+#### Sep 30,2021
+
+Need to finish implementing cluster algorithm
