@@ -64,3 +64,13 @@ Todos thing for tomorrow
 1. Find peaks for all abundance curves
 2. When checking if gaps are 0, check that there are more than just 1 (maybe a percentage of the total number of peaks)
 3. Think a way of implementing Stefano's method. 
+
+#### Oct 04,2021
+
+Turns out that I can actually check what Stefano suggested by checking H', because the system colapses at equilibrium to a rescaled zero sum game (for c<0) or partnership game (for c>0). In the first case, I could find a negative constant such that H' = 0, and in the other case, the consant would be positive. In the second case I would not have 2-species coexistence because I would be in a saddle point, so it is unstable. I could check that I am in this point because with different initial conditions I get different outcomes (priority effects). The other reason why I would get only one species is because the matrix A is unfeasible, but in my code I am already selecting for A matrices that are feasible so I should not see deterministic dynamics for the 1-sp case when I vary initial conditions.
+
+#### Oct 06,2021
+
+Stefano has proved an easier way to transform one game into another by assuming that one matrix (B) is diagonal. So I need to tell Zach. This is without loss of generality, because then I can always redefine soil and/or plants to be a composition of the different soils/ plants such that one of the matrix becomes symetric.
+
+Also, for detecting equilibria: I can integrate until I have 2 species, and then solve my system of equations to see if I am in the case of partnership or zero sum. If I am in zero sum, that is an equilibrium, and if I am in partnership, then I keep integrating to see that one species goes extinct.

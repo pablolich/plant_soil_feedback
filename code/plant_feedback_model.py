@@ -8,7 +8,6 @@ __version__ = '0.0.1'
 
 import sys
 import numpy as np
-from scipy.integrate import solve_ivp
 import matplotlib.pylab as plt
 import progressbar
 from functions import *

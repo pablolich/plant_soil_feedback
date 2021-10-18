@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pylab as plt
+from scipy.integrate import solve_ivp
 
 def model(t, z, params):
 

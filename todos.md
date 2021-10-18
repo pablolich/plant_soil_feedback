@@ -3,3 +3,9 @@
 #### Sep 27,2021
 
 Write down the explanation of why the matrices that abide Hofbauer and Sigmund condition are always feasible, using the Sherman-Morrison formula to demonstarte theat the sign depends on ly on mu, which is chosen always to be positive.
+
+#### Oct 04,2021
+
+Turns out that I can actually check what Stefano suggested by checking H', because the system colapses at equilibrium to a rescaled zero sum game (for c<0) or partnership game (for c>0). In the first case, I could find a negative constant such that H' = 0, and in the other case, the consant would be positive. In the second case I would not have 2-species coexistence because I would be in a saddle point, so it is unstable (Exercise 11.2.3, for c>0, 11.8 is a lyapunov function for 11.2). I could check that I am in this point because with different initial conditions I get different outcomes (priority effects). The other reason why I would get only one species is because the matrix A is unfeasible, but in my code I am already selecting for A matrices that are feasible so I should not see deterministic dynamics for the 1-sp case when I vary initial conditions.
+
+Think of a way to solve Exercise 11.2.14 (page 132) of HS book. In a simpler way than transforming both A and B such that A = B^T. Maybe through only transforming B or A!
