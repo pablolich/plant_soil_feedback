@@ -74,3 +74,18 @@ Turns out that I can actually check what Stefano suggested by checking H', becau
 Stefano has proved an easier way to transform one game into another by assuming that one matrix (B) is diagonal. So I need to tell Zach. This is without loss of generality, because then I can always redefine soil and/or plants to be a composition of the different soils/ plants such that one of the matrix becomes symetric.
 
 Also, for detecting equilibria: I can integrate until I have 2 species, and then solve my system of equations to see if I am in the case of partnership or zero sum. If I am in zero sum, that is an equilibrium, and if I am in partnership, then I keep integrating to see that one species goes extinct.
+
+#### Oct 18,2021
+
+Draw parameters
+Integrate for n timesteps
+check number of species
+if more than 2, keep integrating
+if 2 or less, stop. 
+Record number of cycles.
+If after n integration cycles there is no convergence, raise an error and save
+the parameters of the system (that is, matrix A and B)
+
+#### Oct 14,2021
+
+d
