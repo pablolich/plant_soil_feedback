@@ -89,22 +89,6 @@ def main(argv):
         #tolerance threshold
         plant_ab_rem = np.delete(plant_ab, rows_rem_plant, axis = 0) 
         soil_ab_rem = np.delete(soil_ab, rows_rem_soil, axis = 0)
-        ##Plot either way
-        #for i in range(np.shape(sol.y)[0]):
-        #    linestyle = 'solid'
-        #    color = 'green'
-        #    if i >= n:
-        #        linestyle = 'dashed'
-        #        color = 'black'
-        #    plt.plot(sol.t, sol.y[i,:], linestyle = linestyle, 
-        #             color = color)
-        #plt.show()
-
-        ##Check if true equilibrium is reached
-        #equilibrium_val = check_equilibrium(plant_ab_rem, soil_ab_rem, 
-        #                                    tol, n, equilibrium = False, 
-        #                                    tol_float = 1e-3)
-        #print('Test of equilibrium says that it is: ', equilibrium_val)
         #Check if there are more than 2 species left
         equilibrium_val = True
         n_plants = len(plant_ab_rem)
@@ -118,16 +102,6 @@ def main(argv):
             print('Keep integrating...: ', n_int, end = '\r')
             #Keep integrating system until (1) it diverges, or (2) it converges
             #to an equilibrium with 2 or less than 2 species. 
-            ##Plot either way
-            #for i in range(np.shape(sol.y)[0]):
-            #    linestyle = 'solid'
-            #    color = 'green'
-            #    if i >= n:
-            #        linestyle = 'dashed'
-            #        color = 'black'
-            #    plt.plot(sol.t, sol.y[i,:], linestyle = linestyle, 
-            #             color = color)
-            #plt.show()
             if n_plants != n_soils:
                 print('Number of soils is not the same as number of plants')
                 #The number of soils is not the same as the number of plants, 
@@ -151,12 +125,6 @@ def main(argv):
                     break
                     
                 else:
-                    #Check if true equilibrium is reached again
-                    #equilibrium_val = check_equilibrium(sol.y[0:n,:], 
-                    #                                    sol.y[n:2*n,:], 
-                    #                                    tol, n, 
-                    #                                    equilibrium = False, 
-                    #                                    tol_float = 1e-3)
                     #Find rows of extinct species
                     rows_rem_plant = np.where(plant_ab[:, -1] < tol)[0]
                     rows_rem_soil = np.where(soil_ab[:, -1] < tol)[0]
@@ -210,12 +178,6 @@ def main(argv):
                     n_soils = -1
                     break
                 else:
-                    ##Check if true equilibrium is reached again
-                    #equilibrium_val = check_equilibrium(sol.y[0:n_r,:], 
-                    #                                    sol.y[n_r:2*n_r,:], 
-                    #                                    tol, n_r,
-                    #                                    equilibrium = False, 
-                    #                                    tol_float = 1e-3)
                     #Find rows of extinct species
                     rows_rem_plant = np.where(plant_ab[:, -1] < tol)[0]
                     rows_rem_soil = np.where(soil_ab[:, -1] < tol)[0]
