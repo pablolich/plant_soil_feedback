@@ -2,13 +2,11 @@ import numpy as np
 import matplotlib.pylab as plt
 from scipy.integrate import solve_ivp
 
-def model(t, z, params):
+def model(t, z, A, B, n):
 
     '''
     Diferential equations of plant-feedback model.
     '''
-    #Unpack parameter values
-    A, B, n = map(params.get, ('A', 'B', 'n'))
     #Separate plant and soil vecotrs and reshape
     p = np.array(z[0:n]).reshape(n, 1)
     q = np.array(z[n:n + n]).reshape(n, 1)
@@ -21,6 +19,19 @@ def model(t, z, params):
     dqdt = np.diag(q.transpose()[0]) @ (B @ p - \
             (q.transpose()[0] @ B @ p) * Ip)
     return(list(dpdt.reshape(n)) + list(dqdt.reshape(n)))
+
+def integrate_PSF(fun, t_span, z0, args):
+    '''
+    Wrapper for integrator
+    '''
+    #Solve diferential equations
+    sol = solve_ivp(model, t_span, z0, method = 'BDF', args = args)
+    #Get number of species 
+    n = args[-1]
+    #Get plant and soil abundances
+    plant_ab = sol.y[0:n, :]
+    soil_ab = sol.y[n:2*n, :]
+    return (plant_ab, soil_ab)
 
 def sampling_matrices(n):
     '''
@@ -250,3 +261,82 @@ def plant_soil_extinction(plant_ab, soil_ab, tol):
     contained = ext_plants_ind.issubset(ext_soil_ind)
     return contained
 
+def check_feasibility(A, n):
+    '''
+    Check the feasibility of matrix A
+    '''
+    #Calculate equilibrium signs to check for feasibility
+    eq_prop = np.linalg.inv(A) @ np.ones(n).reshape(n, 1)
+    if np.all(eq_prop > 0):
+        feasibility = False
+    return feasibility
+
+def check_singularity(A):
+    '''
+    Check if matrix A is singular
+    '''
+    try:
+        #Check for non-singularity
+        Ainv = np.linalg.inv(A)
+        singular = False
+    except:
+        #If error occurs when trying to invert, declare matrix as singular
+        singular = True
+    return singular
+
+def remove_extinctions(plants, soils, tol):
+    '''
+    Remove those elements less than the tolerance in both vectors 
+    simultaneously
+    '''
+    #Find indices of elements less than tolerance in each vector
+    ext_ind_plants = np.where(plants < tol)[0]
+    ext_ind_soils = np.where(soils < tol)[0]
+    #Find index of elements less than tolerance in both vectors simultaneously
+    ext_ind_both = np.intersect1d(ext_ind_plants, ext_ind_soils, 
+                                  assume_unique = True)
+    new_plants = np.delete(plants, ext_ind_both, axis = 0)
+    new_soils = np.delete(soils, ext_ind_both, axis = 0)
+    return(new_plants, new_soils)
+
+def remove_extinctions_matrix(matrix, extinctions):
+    '''
+    Remove columns and rows corresponding to extinct plants/soils
+    '''
+    matrix_row = np.delete(matrix, extinctions, 0)
+    matrix_new = np.delete(matrix_row, extinctions, 1)
+    return matrix_new
+
+def check_equilibrium(n_plants, n_soils):
+    '''
+    Check if the number of plants are soils are less or equal than 2
+    '''
+    if n_plants > 2 or n_soils > 2:
+        #If either plant/soil have more than 2, we have not reached
+        #equilibnrium
+        equilibrium = False
+    else:
+        #Otherwise (neither have more than 2), declare equilibrium
+        equilibrium = True
+    return equilibrium
+
+def check_convergence(plants, soils):
+    conv_plants = np.all(plants <= 1)
+    conv_soils = np.all(soils <= 1)
+    if conv_plants and conv_soils:
+        convergence = True
+    else:
+        convergence = False
+    return convergence
+
+def find_extinct_indices(plants, plants_rem, soils, soils_rem):
+    '''
+    Find extinct indices (those elements that are not in x, but not in x_rem)
+    in both plants and soils.
+    '''
+    ext_plant = list(set(plants) - set(plants_rem))
+    ext_plant_ind = np.where(plants == ext_plant)[0]
+    ext_soil = list(set(soils) - set(soils_rem))
+    ext_soil_ind = np.where(soils == ext_soil)[0]
+    return(ext_plant_ind, ext_soil_ind)
+    
