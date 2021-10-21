@@ -15,13 +15,12 @@ import pandas as pd
 
 def main(argv):
     '''Main function'''
-    
     #Number of plants (and soils)
     n_vec = np.array([2, 3, 5, 6])
     #Names of columns
     names = list(['n_sim', 'n_p', 'n_p_f'])
     #Number of simulations
-    n_sim = 2
+    n_sim = 10
     #Preallocate dataframe
     df = pd.DataFrame(0, index = np.arange(len(n_vec)*n_sim), columns = names)
     #Fill known data
@@ -82,21 +81,21 @@ def main(argv):
             #(3) the number of integration cycles surpasses our limit. 
             while (not equilibrium) & (n_int <= n_int_max):
                 #Update number of species and soils
-                n_rem = n_plants
+                n = n_plants
                 #Find extinct indices of plants and soils 
                 ext_plant, ext_soil = find_extinct_indices(plant_ab[:, -1], 
                                                            rem_plant, 
                                                            soil_ab[:, -1],
                                                            rem_soil)
-                A_rem = remove_extinctions_matrix(A, ext_plant)
-                B_rem = remove_extinctions_matrix(B, ext_soil)
+                A = remove_extinctions_matrix(A, ext_plant)
+                B = remove_extinctions_matrix(B, ext_soil)
                 #Set initial conditions to the final state of previous 
                 #integration
-                z0 = list(np.hstack([rem_plant[:,-1], rem_soil[:, -1]]))
+                z0 = list(np.hstack([rem_plant, rem_soil]))
                 #Solve diferential equations again
                 #Re-integrate system
-                plant_ab, soil_ab = integrate_PSF(model, [1, 2000], z0, (A_rem, 
-                                                  B_rem, n_rem))
+                plant_ab, soil_ab = integrate_PSF(model, [1, 2000], z0, (A, B,
+                                                  n))
                 #Increase integration cycle counter
                 n_int += 1
                 #Check for convergence 
@@ -116,9 +115,15 @@ def main(argv):
                     n_soils = len(rem_soil)
                     #Check equilibrium
                     equilibrium = check_equilibrium(n_plants, n_soils)
-            df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = n_plants
+            #Check if while loop exited due to exceeding integration cycles
+            if n_int > n_int_max:
+                #If it did, flag as non-convergent integration
+                df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = -1
+            else:
+                df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = n_plants
             n_act += 1
-            print('Number of equilibria reached: ', n_act, end = '\r')
+            print(n_act, 'equilibria reached for ', n_vec[n_vec_it], 
+                  'starting pecies', end = '\r')
         n_vec_it += 1
     df.to_csv('../data/results.csv')
     return 0

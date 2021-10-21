@@ -7,3 +7,7 @@ Can I use the constant of motion in 11.8 (pag. 130 of HS book) to proof equilibr
 #### Oct 04,2021
 
 Why when the system collapses to a 2-sp system that is just a degenerated partnership game or zero-sjm game even if the HS conditions are not met?
+
+#### Oct 21,2021
+
+After integration, plant is still alive, but soil concnetration is < 0. What do I do with that? OA
