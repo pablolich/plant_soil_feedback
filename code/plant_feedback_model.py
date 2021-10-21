@@ -20,7 +20,7 @@ def main(argv):
     #Names of columns
     names = list(['n_sim', 'n_p', 'n_p_f'])
     #Number of simulations
-    n_sim = 10
+    n_sim = 5000
     #Preallocate dataframe
     df = pd.DataFrame(0, index = np.arange(len(n_vec)*n_sim), columns = names)
     #Fill known data
@@ -102,7 +102,7 @@ def main(argv):
                 convergence = check_convergence(plant_ab, soil_ab)
                 if not convergence:
                     #Raise a non-convergence flag in our dataframe
-                    df.loc[n_act + n_sim*n_vec_it, 'n_p'] = -1
+                    df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = -1
                     #End current simulation
                     break
                 else:
@@ -123,7 +123,7 @@ def main(argv):
                 df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = n_plants
             n_act += 1
             print(n_act, 'equilibria reached for ', n_vec[n_vec_it], 
-                  'starting pecies', end = '\r')
+                  'starting species', end = '\r')
         n_vec_it += 1
     df.to_csv('../data/results.csv')
     return 0
