@@ -20,12 +20,15 @@ def main(argv):
     #Names of columns
     names = list(['n_sim', 'n_p', 'n_p_f'])
     #Number of simulations
-    n_sim = 5000
+    n_sim = 500
+    #Set maximum number of integrations before interruption and skip to next 
+    #simulation
+    n_int_max = 10
     #Preallocate dataframe
     df = pd.DataFrame(0, index = np.arange(len(n_vec)*n_sim), columns = names)
     #Fill known data
-    df.loc[:, 'n_p'] = np.tile(n_vec, n_sim)
-    df.loc[:, 'n_sim'] = np.repeat(np.arange(n_sim), len(n_vec))
+    df.loc[:, 'n_p'] = np.repeat(n_vec, n_sim)
+    df.loc[:, 'n_sim'] = np.tile(np.arange(n_sim), len(n_vec))
     #Extinct threshold
     tol = 1e-9
     #Iterator for each initial species number (goes from 0 to 3)
@@ -34,9 +37,6 @@ def main(argv):
     for n in n_vec:
         #Current simulation number
         n_act = 0
-        #Set maximum number of integrations before interruption and skip
-        #to next simulation
-        n_int_max = 10
         #Run n_sim simulations for n starting plant and soil species
         while n_act < n_sim:
             #Sample random matrix A 
@@ -51,9 +51,10 @@ def main(argv):
             #Sample matrix B
             B = np.diag(np.random.random(size = n))
             #Integrate system
-            plant_ab, soil_ab = integrate_PSF(model, [1, 2000], 2*n*[1/n], (A, 
-                                              B, n))
-            convergence = check_convergence(plant_ab, soil_ab)
+            plant_ab, soil_ab, t = integrate_PSF(model, [1, 2000], 2*n*[1/n], 
+                                                 (A, B, n))
+            convergence = check_convergence(plant_ab[:, -1], soil_ab[:, -1],
+                                            tol)
             #Check for convergence 
             if not convergence:
                 #If integration doesn't converge, we skip it.
@@ -94,15 +95,14 @@ def main(argv):
                 z0 = list(np.hstack([rem_plant, rem_soil]))
                 #Solve diferential equations again
                 #Re-integrate system
-                plant_ab, soil_ab = integrate_PSF(model, [1, 2000], z0, (A, B,
-                                                  n))
+                plant_ab, soil_ab, t = integrate_PSF(model, [1, 2000], z0, 
+                                                     (A, B,n))
                 #Increase integration cycle counter
                 n_int += 1
                 #Check for convergence 
-                convergence = check_convergence(plant_ab, soil_ab)
+                convergence = check_convergence(plant_ab[:, -1], 
+                                                soil_ab[:, -1], tol)
                 if not convergence:
-                    #Raise a non-convergence flag in our dataframe
-                    df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = -1
                     #End current simulation
                     break
                 else:
@@ -115,8 +115,9 @@ def main(argv):
                     n_soils = len(rem_soil)
                     #Check equilibrium
                     equilibrium = check_equilibrium(n_plants, n_soils)
-            #Check if while loop exited due to exceeding integration cycles
-            if n_int > n_int_max:
+            #Check if while loop exited due to exceeding integration cycles or
+            #if the integration diverged
+            if n_int > n_int_max or not convergence:
                 #If it did, flag as non-convergent integration
                 df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = -1
             else:

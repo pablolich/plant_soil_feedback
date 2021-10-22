@@ -13,3 +13,7 @@ Think of a way to solve Exercise 11.2.14 (page 132) of HS book. In a simpler way
 #### Oct 18,2021
 
 I am not checking if when the system reaches 2 species, it can keeep going down to 1, or stays at 2, with the 'smart trick'. Need to implement that
+
+#### Oct 21,2021
+
+Erase unnecessary packages from `plant_feedback_model.py`

@@ -11,3 +11,7 @@ Why when the system collapses to a 2-sp system that is just a degenerated partne
 #### Oct 21,2021
 
 After integration, plant is still alive, but soil concnetration is < 0. What do I do with that? OA
+
+#### Oct 22,2021
+
+When I check for convergence, I am adding a tolerance to 1 (to avoid numerical errors causing false divergent scenarios)
