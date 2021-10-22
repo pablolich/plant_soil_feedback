@@ -118,10 +118,12 @@ def remove_extinctions_matrix(matrix, extinctions):
     matrix_new = np.delete(matrix_row, extinctions, 1)
     return matrix_new
 
-def check_equilibrium(n_plants, n_soils):
+def check_equilibrium(plant_vector, soil_vector):
     '''
     Check if the number of plants are soils are less or equal than 2
     '''
+    n_plants = len(plant_vector)
+    n_soils = len(soil_vector)
     if n_plants > 2 or n_soils > 2:
         #If either plant/soil have more than 2, we have not reached
         #equilibnrium

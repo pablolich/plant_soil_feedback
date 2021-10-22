@@ -20,10 +20,10 @@ def main(argv):
     #Names of columns
     names = list(['n_sim', 'n_p', 'n_p_f'])
     #Number of simulations
-    n_sim = 500
+    n_sim = 5000
     #Set maximum number of integrations before interruption and skip to next 
     #simulation
-    n_int_max = 10
+    n_int_max = 100
     #Preallocate dataframe
     df = pd.DataFrame(0, index = np.arange(len(n_vec)*n_sim), columns = names)
     #Fill known data
@@ -65,11 +65,10 @@ def main(argv):
             rem_plant, rem_soil = remove_extinctions(plant_ab[:, -1], 
                                                      soil_ab[:, -1], 
                                                      tol) 
-            #Check if there are more than 2 species left
-            n_plants = len(rem_plant)
-            n_soils = len(rem_soil)
             #Check if we have reached equilibrium
-            equilibrium = check_equilibrium(n_plants, n_soils)
+            equilibrium = check_equilibrium(rem_plant, rem_soil)
+            #Update number of plants
+            n_plant = len(rem_plant)
             ###################################################################
             #NOTE THAT THIS IS NOT ENTIRELY CORRECT, NEED TO ADD A SNIPPET
             #CHECKING FOR PARTNERSHIP/ZERO-SUM GAME
@@ -81,8 +80,6 @@ def main(argv):
             #converges to an equilibrium with 2 or less than 2 species, or 
             #(3) the number of integration cycles surpasses our limit. 
             while (not equilibrium) & (n_int <= n_int_max):
-                #Update number of species and soils
-                n = n_plants
                 #Find extinct indices of plants and soils 
                 ext_plant, ext_soil = find_extinct_indices(plant_ab[:, -1], 
                                                            rem_plant, 
@@ -96,13 +93,15 @@ def main(argv):
                 #Solve diferential equations again
                 #Re-integrate system
                 plant_ab, soil_ab, t = integrate_PSF(model, [1, 2000], z0, 
-                                                     (A, B,n))
+                                                     (A, B, n_plant))
                 #Increase integration cycle counter
                 n_int += 1
                 #Check for convergence 
                 convergence = check_convergence(plant_ab[:, -1], 
                                                 soil_ab[:, -1], tol)
                 if not convergence:
+                    #Don't count this simulation
+                    n_act -= 1
                     #End current simulation
                     break
                 else:
@@ -110,18 +109,18 @@ def main(argv):
                     rem_plant, rem_soil = remove_extinctions(plant_ab[:, -1], 
                                                              soil_ab[:, -1], 
                                                              tol) 
-                    #Update number of plants and soils left 
-                    n_plants = len(rem_plant)
-                    n_soils = len(rem_soil)
                     #Check equilibrium
-                    equilibrium = check_equilibrium(n_plants, n_soils)
+                    equilibrium = check_equilibrium(rem_plant, rem_soil)
             #Check if while loop exited due to exceeding integration cycles or
             #if the integration diverged
-            if n_int > n_int_max or not convergence:
+            if not convergence:
                 #If it did, flag as non-convergent integration
                 df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = -1
+            elif n_int > n_int_max:
+                #couln't trim the system down to two species
+                df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = -2
             else:
-                df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = n_plants
+                df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = len(rem_plant)
             n_act += 1
             print(n_act, 'equilibria reached for ', n_vec[n_vec_it], 
                   'starting species', end = '\r')

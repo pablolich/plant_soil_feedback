@@ -25,49 +25,50 @@ def main(argv):
     like = 0
     n_it_max = 20
     n_it = 0
-    while not like : 
-        #Sample matrices A and B with H-S constraints
-        A, B = sampling_matrices(n)
-        #Integrate system
-        plant_ab, soil_ab, t = integrate_PSF(model, [1, 20000], 2*n*[1/n], 
-                                             (A, B, n))
-        #Check convergence
-        conv = check_convergence(plant_ab, soil_ab)
-        #Perturb system
-        p = 0.01
-        A_per = A + np.random.uniform(1-p, 1+p, size = np.shape(A))
-        plant_ab_per, soil_ab_per, t_per = integrate_PSF(model, [1, 20000], 
-                                                         2*n*[1/n], 
-                                                         (A_per, B, n))
-        #Check convergence
-        conv_per = check_convergence(plant_ab_per, soil_ab_per)
+    #Perturbation strenght
+    p = 0.01
+    #Set to False convergence flags
+    conv = False
+    conv_per = False
+    #Set number of simulations
+    n_sim = 2
+    sim_it = 0
+    while sim_it < n_sim:
+        #Keep sampling and integrating until convergence
         while not conv or not conv_per:
+            #Sample matrices A and B with H-S constraints
             A, B = sampling_matrices(n)
             A_per = A + np.random.uniform(1-p, 1+p, size = np.shape(A))
             #Integrate unperurbed system
-            plant_ab, soil_ab, t = integrate_PSF(model, [1, 20000], 
+            plant_ab, soil_ab, t = integrate_PSF(model, [1, 2000], 
                                                  2*n*[1/n], 
                                                  (A, B, n))
             #Check convergence of unperurbed system
             conv = check_convergence(plant_ab, soil_ab)
             #Integrate perurbed system
-            plant_ab_per, soil_ab_per, t_per = integrate_PSF(model, [1, 20000], 
+            plant_ab_per, soil_ab_per, t_per = integrate_PSF(model, [1, 2000], 
                                                              2*n*[1/n], 
                                                              (A_per, B, n))
             #Check convergence of perurbed system
             conv_per = check_convergence(plant_ab_per, soil_ab_per)
-        #Plot 
-        ax1 = plt.subplot(121)
-        plot_solution(t, plant_ab)
-        ax2 = plt.subplot(122)
-        plot_solution(t_per, plant_ab_per)
-        plt.show()
-        n_it += 1
-        if n_it > n_it_max:
-            break
-    #Ask input of record or not
-    #Record A, plant_ab, soil_ab for unperturbed and perturbed if yes
+        #Check if the convergent perturbed system has arrived to equilibrium
+        equilibrium = check_equilibrium(plan_ab_per[:, -1], 
+                                        soil_ab_per[:, -1])
+        #Keep integrating both systems until equilibrium is reached
+        while not equilibrium:
+            #Organize new initial conditions and re-integrate, evaluating
+            #equilibrium at the end of each simulation
 
+            #Store number of integration cycles at the end
+
+            #Store dynamics of each integration in a matrix
+
+            #Store matrix A and A_pert if the system is convergent throughout
+            #all the process of relaxation to a 2sp. equilibrium
+
+        sim_it += 1
+        if sim_it > n_sim:
+            break
     return 0
 
 ## CODE ##
