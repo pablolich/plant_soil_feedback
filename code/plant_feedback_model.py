@@ -116,9 +116,13 @@ def main(argv):
             if not convergence:
                 #If it did, flag as non-convergent integration
                 df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = -1
+                #Don't count this simulation
+                n_act -= 1
             elif n_int > n_int_max:
                 #couln't trim the system down to two species
                 df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = -2
+                #Don't count this simulation
+                n_act -= 1
             else:
                 df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = len(rem_plant)
             n_act += 1

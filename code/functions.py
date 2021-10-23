@@ -24,7 +24,10 @@ def integrate_PSF(fun, t_span, z0, args):
     Wrapper for integrator
     '''
     #Solve diferential equations
-    sol = solve_ivp(model, t_span, z0, method = 'BDF', args = args)
+    try:
+        sol = solve_ivp(model, t_span, z0, method = 'BDF', args = args)
+    except:
+        import ipdb; ipdb.set_trace(context = 20)
     #Get number of species 
     n = args[-1]
     #Get plant and soil abundances
