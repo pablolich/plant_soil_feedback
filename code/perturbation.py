@@ -25,7 +25,7 @@ def main(argv):
     #Set extinct threshold
     tol = 1e-9
     like = 0
-    n_it_max = 20
+    n_int_max = 20
     #Perturbation strenght
     p = 0.01
     #Set to False convergence flags
@@ -44,7 +44,9 @@ def main(argv):
     s_l = []
     s_ab = []
     s_ab_per = []
+    cyc_vec = []
     while sim_it < n_sim:
+        print('\nSimulation number: ', sim_it)
         #Keep sampling and integrating until convergence
         while not conv or not conv_per:
             #Sample matrices A and B with H-S constraints
@@ -54,13 +56,14 @@ def main(argv):
             plant_ab, soil_ab, t = integrate_PSF(model, [1, 2000], 2*n*[1/n], 
                                                  (A, B, n))
             #Check convergence of unperurbed system
-            conv = check_convergence(plant_ab, soil_ab)
+            conv = check_convergence(plant_ab[:, -1], soil_ab[:, -1], tol)
             #Integrate perurbed system
             plant_ab_per, soil_ab_per, t_per = integrate_PSF(model, [1, 2000], 
                                                              2*n*[1/n], 
                                                              (A_per, B, n))
             #Check convergence of perurbed system
-            conv_per = check_convergence(plant_ab_per, soil_ab_per)
+            conv_per = check_convergence(plant_ab_per[:, -1], 
+                                         soil_ab_per[:, -1], tol)
         #Remove extinct species from perturbed system
         rem_plant, rem_soil = remove_extinctions(plant_ab_per[:, -1], 
                                                  soil_ab_per[:, -1], 
@@ -70,8 +73,13 @@ def main(argv):
                                         rem_soil)
         #Set number of integration cycles to zero
         n_int = 0
-        #Keep integrating both systems until equilibrium is reached
+        #Initialize list to keep track of extinct plants and soils
+        ext_ind = []
+        #Keep integrating both systems until equilibrium in perturbed one 
+        #is reached
         while not equilibrium:
+            #Update number of plants
+            n_plant = len(rem_plant)
             #Remove extinct species from payoff matrices
             ext_plant, ext_soil = find_extinct_indices(plant_ab_per[:, -1], 
                                                        rem_plant, 
@@ -79,6 +87,8 @@ def main(argv):
                                                        rem_soil)
             A_per = remove_extinctions_matrix(A_per, ext_plant)
             B = remove_extinctions_matrix(B, ext_soil)
+            #Record extinctions
+            ext_ind += list(ext_plant)
             #Set initial conditions to the final state of previous integration
             z0_per = list(np.hstack([rem_plant, rem_soil]))
             #Re-integrate systems
@@ -95,39 +105,65 @@ def main(argv):
             #integration
             t_span = [0, max(t_per) - min(t_per)]
             #Integrate unperturb system for the same time as the perturb system 
-            plant_ab, soil_ab, t = integrate_PSF(model, 
-                                                 t_span,
-                                                 z_0, (A, B, n))
+            sol = solve_ivp(model, t_span, z_0, args = (A, B, n), 
+                            dense_output = True)
             #Check for convergence in both cases
             conv_per = check_convergence(plant_ab_per[:, -1], 
-                                            soil_ab_per[:, -1], tol)
+                                         soil_ab_per[:, -1], tol)
             conv = check_convergence(plant_ab[:, -1], soil_ab[:, -1], tol)
             if not conv_per or not conv:
+                n_int += 1
+                #Get bad indices
+                ind_rem = np.where(np.array(sim_vec) == sim_it)[0]
+                if sim_it > 0:
+                    import ipdb; ipdb.set_trace(context = 20)
+                    #Remove information of divergent system 
+                    del p_ab[ind_rem]
+                    del s_ab[ind_rem]
+                    del t_vec[ind_rem]
+                    del p_l[ind_rem]
+                    del s_l[ind_rem]
+                    del sim_vec[ind_rem]
+                    del p_ab_per[ind_rem]
+                    del s_ab_per[ind_rem]
+                    del cyc_vec[ind_rem]
                 #Don't count this simulation
                 sim_it -= 1
                 #End current simulation
                 break
             #Increase integration cycle counter
             n_int += 1
+            #Evaluate unperturbed solution in time vector of perturbed one.
+            z = sol.sol(t_per)
+            plant_ab = z[0:n, :]
+            soil_ab = z[n:2*n, :]
+            #If it is the case, insert rows of 0 at extinct positions
+            if ext_ind:
+                plant_ab = np.insert(plant_ab, 0, ext_ind, axis = 0)
+                soil_ab = np.insert(soil_ab, 0, ext_ind, axis = 0)
             #Store variables of interest
-            t_vec = t_vec.append(list(t_per))
+            t_vec += list(np.tile(t_per, n))
             t_points = len(t_per)
-            #Set labels in long format by repeating each label t_points times
-            p_l = p_l.append(np.repeat(np.arange(n), t_points))
-            s_l = s_l.append(np.repeat(np.arange(n), t_points))
+            cyc_vec += t_points*n*[n_int]
+            #Set labels of plants and soils in long format by repeating each 
+            #label t_points times
+            p_l += list(np.repeat(np.arange(n), t_points))
+            s_l += list(np.repeat(np.arange(n), t_points))
             #Set simulation vector by repeating each simulation the number of 
             #time points times the number of speciess)
-            sim_vec = sim_vec.append(t_points*n*[sim_it])
+            sim_vec += t_points*n*[sim_it]
             #Need to check that the three abovee vectors remain the same length
-            #Need to create a vector of abundances including the 0s of extinct
-            #species
-            p_ab = []
-            s_ab = []
-            p_ab_per = []
-            s_ab_per = []
+            p_ab += list(plant_ab.flatten())
+            s_ab += list(soil_ab.flatten())
+            p_ab_per += list(plant_ab_per.flatten())
+            s_ab_per += list(soil_ab_per.flatten())
             #Check equilibrium
             equilibrium = check_equilibrium(rem_plant, rem_soil)
+            print('Number of integrations: ', n_int, end = '\r')
+            if n_int > n_int_max:
+                break
 
+        #Create dataframe with lists
         #Store number of integration cycles at the end
 
         #Store dynamics of each integration in a matrix
@@ -138,8 +174,22 @@ def main(argv):
         sim_it += 1
         if sim_it > n_sim:
             break
-        #Set data frame column names vector
-        names = ['n_sim', 't', 'p_l', 'p_ab', 's_l', 's_ab']
+    #Set data frame column names vector
+    names = ['n_sim', 't', 'p_l', 'p_ab', 'p_ab_per', 's_l', 's_ab', 
+             's_ab_per', 'n_cyc']
+    df = pd.DataFrame({'n_sim': sim_vec,
+                       't': t_vec, 
+                       'p_l': p_l, 
+                       'p_ab': p_ab,
+                       'p_ab_per': p_ab_per,
+                       's_l': s_l,
+                       's_ab': s_ab,
+                       's_ab_per': s_ab_per,
+                       'cyc_vec': cyc_vec
+                      })
+    import ipdb; ipdb.set_trace(context = 20)
+    df.to_csv('../data/example_search.csv')
+
     return 0
 
 ## CODE ##
