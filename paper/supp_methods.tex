@@ -1,0 +1,287 @@
+\documentclass[11pt]{article}
+\usepackage[left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry} % page settings
+\usepackage{float}
+\usepackage{natbib}
+
+\setcitestyle{round,aysep={}}
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+\usepackage{amsmath}
+\usepackage{amsthm, thmtools}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{graphicx}   
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+%\numberwithin{equation}
+
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{arrows}
+\usepackage[makeroom,samesize]{cancel}
+
+\usepackage{
+nameref,
+%\nameref
+hyperref,
+%\autoref
+% n.b. \Autoref is defined by thmtools
+cleveref,
+% \cref
+% n.b. cleveref after! hyperref
+}
+
+\usepackage{setspace}
+\usepackage{lineno}
+\title{Supplemental Methods: No robust coexistence in a canonical model of plant-soil feedbacks}
+
+\date{}
+\author{Zachary R. Miller$^{1*}$, Pablo Lech\'{o}n$^{1}$, and Stefano Allesina$^{1,2}$ \\
+	\\
+	\normalsize{$^{1}$Department of Ecology \& Evolution, University of Chicago, Chicago, IL, USA}\\
+	\normalsize{$^{2}$Northwestern Institute on Complex Systems, Evanston, IL, USA}\\
+	\\
+	\normalsize{*corresponding author e-mail: zachmiller@uchicago.edu}\\
+}
+
+\begin{document}
+\maketitle
+\setstretch{1.5}
+\linenumbers
+
+\section{Model derivation}
+
+As described in the Main Text, we begin with the system
+
+\begin{align}
+\begin{cases}
+\frac{dx_i}{dt} &= x_i \left(\sum_{j} \alpha_{ij} \, q_j \right) \, , \quad  i = 1, \dots n \\
+\frac{dy_i}{dt} &= y_i \left( \beta_i \, p_i \right)
+\end{cases}
+\end{align}
+governing the time-evolution of plant abundances $x_i$ and soil components $y_i$, where $p_i = x_i / \sum_j x_j$, $q_i = y_i / \sum_j y_j$, and Greek letters denote nonnegative parameters. These equations capture the assumptions outlined by Bever et al. \citep{bever1997incorporating} for two species and extend them straightforwardly to any $n$ species. Following the approach of Bever et al. for two species (and consistent with other generalizations of this model \citep{kulmatiski2008plant,eppinga2018frequency}), we derive dynamics for the $p_i$ by applying the chain rule:
+
+\begin{align} \label{derive_relative}
+\begin{split}
+	\frac{dp_i}{dt} &= \frac{d}{dt} \frac{x_i}{\sum x_j}\\  
+	&= \frac{1}{\sum_j x_j} \frac{dx_i}{dt} - \frac{x_i}{(\sum_j x_j)^2} \sum_j \frac{dx_j}{dt} \\
+	&= \frac{x_i}{\sum_j x_j} \left( \sum_{j} \alpha_{ij} \, q_j \right) - \frac{x_i}{\sum_j x_j} \left(\sum_j \frac{x_j}{\sum_k x_k} \sum_{l} \alpha_{jl} \, q_l \right)\\
+	&= p_i \left(\sum_{j} \alpha_{ij} \, q_j -  \sum_{j, k} \alpha_{jk} p_j  q_k \right) \, .
+\end{split}
+\end{align}
+This last expression is identical to the first line of Eq.~\ref{nspp_relative} in the Main Text. The dynamics for $q_i$ can be derived in exactly the same way (using the definitions $\beta_{ii} = \beta_i$ and $\beta_{ij} = 0$). The two terms of each per capita growth rate in Eq.~\ref{nspp_relative} have natural interpretations in the language and notation of linear algebra: $\sum_{j} \alpha_{ij} \, q_j$ is the $i$th component of the matrix-vector product $A \bm{q}$ and $\sum_{j, k} \alpha_{jk} p_j  q_k$ is the bilinear form $\bm{p}^T A \bm{q}$. Here, $A$ (and $B$) is an $n \times n$ matrix and $\bm{p}$ ($\bm{q}$) is a vector of length $n$, as described in the Main Text. We can re-write Eq.~\ref{nspp_relative} as
+\begin{align}
+\begin{split}
+	\frac{dp_i}{dt} &= p_i \left((A \bm{q})_i - \bm{p}^T A \bm{q} \right) \\
+	\frac{dq_i}{dt} &= q_i \left((B \bm{p})_i - \bm{q}^T B \bm{p} \right) \\
+\end{split}
+\end{align}
+or even more compactly as
+\begin{align}
+\begin{cases}
+\frac{d\bm{p}}{dt} &= D(\bm{p}) \left(A \bm{q} - (\bm{p}^T A \bm{q}) \bm{1} \right) \\
+\frac{d\bm{q}}{dt} &= D(\bm{q}) \left(B \bm{p} - (\bm{q}^T B \bm{p}) \bm{1}  \right) \,
+\end{cases}
+\end{align}
+which is Eq.~\ref{matrix_form} in the Main Text.
+
+These expressions are identical to standard bimatrix replicator dynamics \citep{hofbauer1996evolutionary,hofbauer1998evolutionary}. Bimatrix games have two strategy sets (here, the $p_i$ and $q_i$), and interactions take place only between strategies from opposite sets. The growth rate terms we considered above now have interpretations as payoffs or fitnesses: $\sum_{j} \alpha_{ij} \, q_j = (A \bm{q})_i$ is the payoff for strategy $i$ (an average of payoffs playing against each strategy of the other ``player'', weighted by the frequency of each strategy, $q_j$) and $\sum_{j, k} \alpha_{jk} p_j  q_k = \bm{p}^T A \bm{q}$ is the average payoff across the population of strategies. A general bimatrix game may have any nonnegative $B$; our model assumptions lead to the special case where $B$ is diagonal. We note that one could easily and plausibly consider an extension of the Bever model where each plant species has some effect on (up to) all $n$ of the soil components. Then, our PSF model would be map exactly onto the full space of bimatrix game dynamics (rather than just a subset). However, all of the results we consider hold for arbitrary bimatrix games, meaning the same conclusions about the dynamics of Eqs.~\ref{nspp_relative}-\ref{matrix_form} would apply to this extended model, as well. 
+
+We note two useful properties of Eqs.~\ref{nspp_relative}-\ref{matrix_form}, as they will be important for the analysis that follows. First, we have the constraint $\sum_i p_i = \sum_i q_i = 1$ at every point in time. Second, the dynamics are completely unchanged by adding a constant to any \emph{column} of the parameter matrices $A$ or $B$. The first fact is a direct consequence of our definition for $p_i$ and $q_i$; the second can easily be shown. Suppose we have added a constant $c$ to each element in the $l$th column of $A$. Then
+
+\begin{align}
+\begin{split}
+\frac{dp_i}{dt} &= p_i \left(\sum_{j} \alpha_{ij} \, q_j + c \, q_l - \sum_{j, k} \alpha_{jk} \, p_j \, q_k - \sum_{j} c \, p_j \, q_l \right)\\
+&= p_i \left(\sum_{j} \alpha_{ij} \, q_j + c \, q_l - \sum_{j, k} \alpha_{jk} \, p_j \, q_k - c \, q_l \right) \\
+&= p_i \left(\sum_{j} \alpha_{ij} \, q_j - \sum_{j, k} \alpha_{jk} \, p_j \, q_k \right)
+\end{split}
+\end{align}
+which is precisely the differential equation we obtained prior to adding $c$. Clearly the trajectories of both systems (with and without the column shift) must be identical. The same considerations apply for the matrix $B$. Intuitively, this property reflects the fact that we are always subtracting the average payoff, and so any change to the payoffs that benefits (or harms) each species equally is ``invisible'' to the dynamics.
+
+In the remaining sections, we outline the main behaviors of Eqs.~\ref{nspp_relative}-\ref{matrix_form}, especially with regard to coexistence. We closely follow the treatment by Hofbauer and Sigmund \citep{hofbauer1998evolutionary}, and urge interested readers to consult this excellent introduction (see especially chapters 10 and 11). Here, we reproduce or sketch the essential details needed to justify the results in the Main Text.
+
+\section{Coexistence equilibrium}
+
+Written in matrix form, it is easy to see that the model admits a unique fixed point where all species are present at non-zero frequency. This fixed point, $(\bm{p}^\star, \bm{q}^\star)$, must take the form $(c_1 B^{-1} \bm{1}, c_2 A^{-1} \bm{1})$ for some undetermined constants $c_1$ and $c_2$. Substituting this ansatz into the growth rates in Eq.~\ref{matrix_form} and equating them to zero, we have
+
+\begin{align}
+	\begin{split}
+	A \bm{q}^\star - ((\bm{p}^\star)^T A \bm{q}^\star) \bm{1} = c_2 A A^{-1} \bm{1} - (c_1 c_2 \bm{1}^T  (B^{-1})^T A A^{-1} \bm{1}) \bm{1} &= c_2 (1 - c_1 \bm{1}^T  (B^{-1})^T \bm{1}) \bm{1} = 0 \\
+	B \bm{p}^\star - ((\bm{q}^\star)^T B \bm{p}^\star) \bm{1} = c_1 B B^{-1} \bm{1} - (c_1 c_2 \bm{1}^T  (A^{-1})^T B B^{-1} \bm{1}) \bm{1} &= c_1 (1 - c_2 \bm{1}^T  (A^{-1})^T \bm{1}) \bm{1} = 0
+	\end{split}
+\end{align}
+From the final two equations, it is clear that $c_1 = \frac{1}{\bm{1}^T  (B^{-1})^T \bm{1}} = \frac{1}{\bm{1}^T  B^{-1} \bm{1}}$ and $c_2 = \frac{1}{\bm{1}^T  (A^{-1})^T \bm{1}} = \frac{1}{\bm{1}^T  A^{-1} \bm{1}}$.
+
+These rescaling factors make intuitive sense, as they ensure that $\sum_i p^\star_i = \sum_i q^\star_i = 1$, consistent with their definition as frequencies.
+
+Describing these equilibrium frequencies in terms of the parameters is a difficult problem that has received significant attention elsewhere \citep{eppinga2018frequency,mack2019plant,saavedra2017structural,servan2018coexistence,pettersson2020stability,saavedra2021feasibility}. In particular, one is usually interested in identifying whether all of the frequencies are nonnegative (such a fixed point is said to be feasible). The existence of a feasible fixed point is a requirement for the model to exhibit permanence, meaning that no species go extinct or grow to infinity. Throughout our analysis, we assume the existence of a feasible fixed point; considering the question of feasibility simultaneously would only make coexistence less likely in each case.
+
+\section{Local stability analysis}
+
+Perturbations around the coexistence equilibrium are constrained to respect the conditions $\sum_i p_i = \sum_i q_i = 1$. For this reason, it is convenient to remove these constraints before performing a local stability analysis. As in the two species case \citep{bever1997incorporating}, this can be done by eliminating the $n$th species and soil component, which leaves us with a $2n - 2$ dimensional system with no special constraints. 
+
+We use $p_n = 1 - \sum_{i = 1}^{n-1} p_i \equiv f(\bm{p})$ and $q_n = 1 - \sum_{i=1}^{n-1} q_i \equiv g(\bm{q})$ and write these frequencies as functions of the others. The reduced dynamics are given by 
+
+\begin{align}
+\begin{cases} \label{reduced}
+\frac{dp_i}{dt} &= p_i \left(\sum_{j}^{n-1} \alpha_{ij} \, q_j + \alpha_{in} g(\bm{q}) - \sum_{j, k}^{n-1} \alpha_{jk} \, p_j \, q_k - f(\bm{p}) \sum_{j}^{n-1} \alpha_{nj} q_j - g(\bm{q}) \sum_{j}^{n-1} \alpha_{jn} p_j - \alpha_{nn} f(\bm{p}) g(\bm{q})  \right) \\
+\frac{dq_i}{dt} &= q_i \left(\beta_{i} \, p_i - \sum_{j}^{n-1} \beta_{j} \, p_j \, q_j  - \beta_n f(\bm{p}) g(\bm{q})  \right) \, , \quad  i = 1, \dots n-1
+\end{cases}
+\end{align}
+Although these equations appear more complex, it is now straightforward to analyze the local stability of the coexistence equilibrium.
+
+The elements of the community matrix (the Jacobian evaluated at the coexistence equilibrium) are easily computed from Eq.~\ref{reduced}. First we consider the plant dynamics differentiated with respect to the plant frequencies. In these calculations, all frequencies are evaluated at their equilibrium values.
+
+\begin{align} \label{firstblock}
+\begin{split} 
+	\frac{\partial}{\partial p_j} \frac{dp_i}{dt} &= p_i \left( - \sum_{k}^{n-1} \alpha_{jk} \, q_k + \sum_{k}^{n-1} \alpha_{nk} q_k - \alpha_{jn} g(\bm{q}) + \alpha_{nn} g(\bm{q}) \right) \\
+	&= p_i \left( - \sum_{k}^{n} \alpha_{jk} \, q_k + \sum_{k}^{n} \alpha_{nk} q_k \right)\\
+	&= 0
+\end{split}
+\end{align}
+Here, we have used the fact that $A \bm{q^*} \propto \bm{1}$. Notice that, because the factors in parentheses in Eq.~\ref{reduced} are zero at equilibrium, these community matrix calculations are valid even for $i = j$.
+
+The other elements are computed similarly:
+
+\begin{align}
+\begin{split} 
+\frac{\partial}{\partial q_j} \frac{dq_i}{dt} &= q_i \left( - \beta_i q_i + \beta_n f(\bm{p}) \right) \\
+&= 0
+\end{split}
+\end{align}
+
+\begin{align}
+\begin{split} 
+\frac{\partial}{\partial q_j} \frac{dp_i}{dt} &= p_i \left(\alpha_{ij} - \alpha_{in} - \sum_{k}^{n-1} \alpha_{kj} \, p_k - \alpha_{nj} \, f(\bm{p}) + \sum_{k}^{n-1} \alpha_{kn} p_k + \alpha_{nn} f(\bm{p}) \right) \\
+&= p_i(\alpha_{ij} - \alpha_{in})
+\end{split}
+\end{align}
+
+\begin{align} \label{lastblock}
+\begin{split} 
+\frac{\partial}{\partial p_j} \frac{dq_i}{dt} &= 
+\begin{cases}
+q_i \, \beta_{i} \, , \quad i = j\\
+0 \, , \quad i \neq j
+\end{cases} \\
+\end{split}
+\end{align}
+
+From these calculations, it is apparent that the trace of the community matrix, given by $\sum_i^{n-1} \frac{\partial}{\partial p_i} \frac{dp_i}{dt} + \sum_j^{n-1} \frac{\partial}{\partial q_i} \frac{dq_i}{dt}$ , is zero. The trace of a square matrix is equal to the sum of its eigenvalues \citep{horn2012matrix}, so the eigenvalues of the community matrix must include either (i) a mix of positive and negative real parts or (ii) only purely imaginary values. In the first case, the coexistence equilibrium is locally unstable, because at least one eigenvalue has positive real part. In the second case, the coexistence equilibrium is a neutrally or marginally stable. These two possibilities exclude locally stable equilibria. In this respect, the behavior of the two-species model is the generic behavior of the generalized $n$-species model.
+
+\section{Zero divergence implies no attractors}
+
+We can extend this picture beyond a local neighborhood of the coexistence equilibrium by considering the divergence of the vector field associated with Eqs.~\ref{nspp_relative}-\ref{matrix_form}. The divergence, defined by $\sum_i \frac{\partial}{\partial p_i} \frac{dp_i}{dt} + \sum_i \frac{\partial}{\partial q_i} \frac{dq_i}{dt}$, measures the outgoing flux around a given point. It can be shown (see \citep{eshel1983coevolutionary} and \citep{hofbauer1998evolutionary}) that up to a change in velocity (i.e. rescaling time by a positive factor), the vector field corresponding to any bimatrix game dynamics has zero divergence everywhere in the interior of the positive orthant (i.e. where $p_i, q_i > 0$ for all $i$). 
+
+The divergence theorem \citep{arfken1985mathematical} equates the integral of the divergence of a vector field over some $n$-dimensional region to the net flux over the boundary of the region. For a vector field with zero divergence, this implies that every closed surface has zero net flux. As a consequence, such \emph{divergence-free} vector fields cannot have attractors, or subsets of phase space toward which trajectories of the corresponding dynamical system tend to evolve. If an attractor existed, one could define a surface enclosing it sufficiently tightly, and the net flux over this surface would be negative (as trajectories enter, but do not exit, this region). But this would present a contradiction, and so we conclude that there can be no attractors, such as limit cycles, for the dynamics.
+
+For our model, these facts mean that attractors can only exist on the boundary of the phase space. Because each boundary face for the $n$-dimensional system is another bimatrix replicator system on $n-2$ dimensions, the same logic applies, and the only possible attractors are points where a single species (and corresponding soil component) is present \citep{hofbauer1998evolutionary}. States with multiple species present are never attractive. This leaves neutrally-stable oscillations as the only potential form of species coexistence. 
+
+\section{Rescaled zero-sum games are neutrally stable}
+
+In the context of bimatrix games, a zero-sum game is one where $A = -B^T$. A rescaled zero-sum game is one where there exist constants $\gamma_i, \delta_j$ and $c > 0$ such that $a_{ij} + \delta_j = -c b_{ji} + \gamma_i$ for all $i$ and $j$ (here, we understand $A = (a_{ij}), B = (b_{ij})$) \citep{hofbauer1998evolutionary}. Any rescaled zero-sum game can be turned into a zero-sum game by adding constants (in particular, $-\delta_j$ and $-\gamma_j$) to each column of $A$ and $B$, and then multiplying $B$ by a positive constant $1 / c$. As such, the dynamics of a rescaled zero-sum game and its corresponding zero-sum game are the same up to a rescaling of time.
+
+If a rescaled zero-sum game has a feasible coexistence equilibrium, this equilibrium is neutrally stable. We can see this by considering the associated community matrix. First, we assume without loss of generality that $A = -c B^T$ (otherwise, we shift columns to obtain this form, without altering the dynamics in the process) Now we add the column-constant matrix $\frac{1}{c} \bm{b}_n \bm{1}^T$ to $A$ and $c \bm{a}_n \bm{1}^T$ to $B$, where $\bm{a}_n$ ($\bm{b}_n$) denotes the $n$th column of $A$ ($B$). Again, the dynamics, including both equilibrium values and stability properties, are unchanged by this operation. From Eqs.~\ref{firstblock}-\ref{lastblock}, we see that the community matrix, $J$, of the resulting system is given by
+
+\begin{equation}
+\begin{pmatrix}
+	0 && D(\bm{p}^\star) (\bar{A} + \frac{1}{c} \bm{b}_n \bm{1}^T - \bm{1} \bm{a}_n^T) \\
+	D(\bm{q}^\star) (\bar{B} + c \bm{a}_n \bm{1}^T - \bm{1} \bm{b}_n^T) && 0
+\end{pmatrix}
+\end{equation}
+where $\bar{A}$ ($\bar{B}$) denotes the $(n-1) \times (n-1)$ submatrix of $A$ ($B$) obtained by dropping the $n$th row and column. Finally, we consider the similarity transform $P^{-1} J P$, defined by the change of basis matrix 
+
+\begin{equation}
+P = \begin{pmatrix}
+	\sqrt{c} D(\bm{p}^\star)^{1/2} && 0 \\
+	0 && D(\bm{q}^\star)^{1/2}
+\end{pmatrix} \, .
+\end{equation}
+The resulting matrix, $J'$, which shares the same eigenvalues as $J$ \citep{horn2012matrix}, is given by
+
+\begin{equation}
+\begin{pmatrix}
+0 && \sqrt{c} D(\bm{p}^\star)^{1/2} (\bar{A} + \frac{1}{c} \bm{b}_n \bm{1}^T - \bm{1} \bm{a}_n^T) D(\bm{q}^\star)^{1/2} \\
+\sqrt{c} D(\bm{q}^\star)^{1/2} (-\bar{A^T} + \bm{a}_n \bm{1}^T - \frac{1}{c} \bm{1} \bm{b}_n^T) D(\bm{p}^\star)^{1/2} && 0
+\end{pmatrix}
+\end{equation}
+which is a skew-symmetric matrix. Every eigenvalue of a skew-symmetric matrix must have zero real part \citep{horn2012matrix}. Thus, the eigenvalues of $J$, the community matrix, have zero real part, and the coexistence equilibrium of our original system is neutrally stable. 
+
+Here, we have outlined a proof that applies to all rescaled zero-sum games. When $B$ is a diagonal matrix, as in our model of PSFs, the condition for $A$ and $B$ to constitute a rescaled zero-sum game reduces to the condition given in the Main Text.
+
+Rescaled zero-sum games are the only bimatrix games known to produce neutrally stable oscillations. It is a long-standing conjecture that no other bimatrix games have this property \citep{hofbauer1996evolutionary,hofbauer1998evolutionary,hofbauer2011deterministic}. 
+
+\section{Two-species bimatrix games}
+
+For $n > 2$, the rescaled zero-sum game condition is very stringent -- it places exacting equality constraints on the elements of $A$ and $B$. However, for $n = 2$, every bimatrix game satisfies $a_{ij} + \delta_j = -c b_{ji} + \gamma_i$ for some $c$ potentially positive (in which case we have a rescaled zero-sum game) or negative (in which case the game is called a \emph{partnership game}, and the coexistence equilibrium is unstable) \citep{hofbauer1998evolutionary}. Thus, neutral oscillations arise whenever $c > 0$. 
+
+To see that this is true, we first suppose that $A$ and $B$ have the form
+
+\begin{equation}
+	A = \begin{pmatrix}
+	0 && a_1 \\
+	a_2 && 0
+	\end{pmatrix}
+	\quad \quad 
+	B = \begin{pmatrix}
+	0 && b_1 \\
+	b_2 && 0 
+	\end{pmatrix} \, . 
+\end{equation}
+If this is not the case, we can use constant column shifts to arrive at this form (e.g., in general, $a_1 = a_{12} - a_{22}$). Now consider the constants $c = -\frac{a_1 + a_2}{b_1 + b_2}$ and $\gamma_1 = \delta_1 = a_1 + c b_2$ and $\gamma_2 = \delta_2 = 0$. Examining the equation $a_{ij} + \delta_j - \gamma_i = -c b_{ji}$ for each $i$ and $j$, one verifies
+
+\begin{align}
+	\begin{split}
+	0 + \gamma_1 - \delta_1  &= 0 \\
+	a_1 + \gamma_2 - \delta_1 &= -c b_2 \\
+	a_2 + \gamma_1 - \delta_2 = -c (b_1 + b_2 - b2) &= -c b_1 \\
+	0  &= 0
+	\end{split}
+\end{align}
+and so the parameters $A$ and $B$ always constitute a rescaled zero-sum or partnership game. In the particular case of our model, $a_1 + a_2 = -\alpha_{11} + \alpha_{21} + \alpha_{12} - \alpha_{22} = -I_s$ and $b_1 + b_2 = -\beta_1 - \beta_2$. $c$ is positive (as needed for cycles) when these signs disagree; since $b_1 + b_2 = -\beta_1 - \beta_2$ is always negative, $a_1 + a_2$ must be positive, meaning $I_s < 0$, as found by Bever et al.
+
+\section{Constants of motion}
+
+When $A$ and $B$ satisfy the rescaled zero-sum game condition, the function
+
+\begin{equation}
+	H(\bm{p}, \bm{q}) = \sum_i p_i^\star \log p_i + c \sum_j q_j^\star \log q_j 
+\end{equation}
+is a constant of motion for the dynamics \citep{hofbauer1998evolutionary}. As above, we suppose that $A = -c B^T$, and shift the columns of each matrix as needed if this is not the case. Then consider the time derivative
+
+\begin{align}
+	\begin{split}
+	\frac{dH}{dt} &= \sum_i p_i^\star \frac{1}{p_i} \frac{dp_i}{dt} + c \sum_j q_j^\star \frac{1}{q_i} \frac{dq_i}{dt} \\
+	&= \sum_i p_i^\star \left(\sum_{j} \alpha_{ij} \, q_j - \sum_{j, k} \alpha_{jk} \, p_j \, q_k \right) + c \sum_j q_j^\star \left( \beta_{i} \, p_i - \sum_{j} \beta_{j} \, p_j \, q_j \right) \\
+	&= \sum_{i, j} \alpha_{ij} \, p_i^\star \, q_j - \sum_{j, k} \alpha_{jk} \, p_j \, q_k + c \sum_{i} \beta_{i} \, q_i^\star \, p_i - c \sum_{j} \beta_{j} \, p_j \, q_j \\
+	&= \sum_{i, j} \alpha_{ij} \, (p_i^\star - p_i) \, q_j + c \sum_{i} \beta_{i} \, (q_i^\star - q_i) \, p_i 
+	\intertext{Now, because $A = -c B^T$, we have}
+	&= c \sum_i \beta_i \left( -(p_i^\star - p_i) \, q_i + (q_i^\star - q_i) \, p_i \right)\\
+	&= c \sum_i \beta_i \left( -p_i^\star \, q_i + q_i^\star \, p_i \right)
+	\intertext{and because $q_i^* = p_i^* = \frac{Z}{\beta_{i}}$, with $Z$ the normalizing constant,}
+	&= c \, Z \, \sum_i (-q_i + p_i) \\
+	&= 0
+	\end{split}
+\end{align}
+In the last line, we use the fact that both sets of frequencies always sum to one.
+
+Each orbit remains in the level set defined by the initial conditions,$(\bm{p}_0, \bm{q}_0)$:
+
+\begin{equation}
+H(\bm{p}_0, \bm{q}_0) = \sum_i p_i^\star \log p_i + c \sum_j q_j^\star \log q_j 
+\end{equation}
+For the two-species model studied by Bever et al., these level sets precisely define the trajectories in the $(p, q)$ phase plane.
+
+\bibliographystyle{ecol_let}
+\bibliography{references_supp}
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
