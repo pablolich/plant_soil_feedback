@@ -13,21 +13,22 @@ def model(t, z, A, B, n):
     Ip = np.ones(shape = n).reshape(n, 1)
     Iq = np.ones(shape = n).reshape(n, 1)
     #Model equations
-    dpdt = np.diag(p.transpose()[0]) @ (A @ q - \
-            (p.transpose()[0] @ A @ q) * Iq) 
-    dqdt = np.diag(q.transpose()[0]) @ (B @ p - \
-            (q.transpose()[0] @ B @ p) * Ip)
+    try:
+        dpdt = np.diag(p.transpose()[0]) @ (A @ q - \
+                (p.transpose()[0] @ A @ q) * Iq) 
+        dqdt = np.diag(q.transpose()[0]) @ (B @ p - \
+                (q.transpose()[0] @ B @ p) * Ip)
+    except:
+        import ipdb; ipdb.set_trace(context = 20)
     return(list(dpdt.reshape(n)) + list(dqdt.reshape(n)))
 
-def integrate_PSF(fun, t_span, z0, args):
+def integrate_PSF(fun, t_span, z0, args, method = 'BDF'):
     '''
     Wrapper for integrator
     '''
     #Solve diferential equations
-    try:
-        sol = solve_ivp(model, t_span, z0, method = 'BDF', args = args)
-    except:
-        import ipdb; ipdb.set_trace(context = 20)
+    sol = solve_ivp(model, t_span, z0, method = method, args = args)
+
     #Get number of species 
     n = args[-1]
     #Get plant and soil abundances
@@ -136,6 +137,22 @@ def check_equilibrium(plant_vector, soil_vector):
         equilibrium = True
     return equilibrium
 
+def check_equilibrium_bis(plant_vector, soil_vector):
+    '''
+    Check if only 2 species are greater than the tolerance
+    '''
+    n_plants = sum(plant_vector > 0)
+    n_soils = sum(soil_vector > 0)
+    if n_plants > 2 or n_soils > 2:
+        #If either plant/soil have more than 2, we have not reached
+        #equilibnrium
+        equilibrium = False
+    else:
+        #Otherwise (neither have more than 2), declare equilibrium
+        equilibrium = True
+    return equilibrium
+
+
 def check_convergence(plants, soils, tol):
     '''
     Check that integration has converged by verifying that all abundances at
@@ -163,4 +180,18 @@ def find_extinct_indices(plants, plants_rem, soils, soils_rem):
     o, ext_soil_ind, o = np.intersect1d(soils, ext_soil, 
                                         return_indices = True)
     return(ext_plant_ind, ext_soil_ind)
+
+def homogenize(vector):
+    '''
+    Homogenize a vector such that all the elements that are one integer
+    appart become equal to the first integer in the sequence
+    '''
+    n = len(vector)
+    new_vector = np.zeros(n)
+    for i in range(n-1):
+        if vector[i+1] - vector[i] == 1:
+            new_vector[i+1] = vector[i]
+        else:
+            new_vector[i+1] = vector[i+1]
+    return new_vector
 

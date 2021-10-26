@@ -109,6 +109,7 @@ def main(argv):
                     rem_plant, rem_soil = remove_extinctions(plant_ab[:, -1], 
                                                              soil_ab[:, -1], 
                                                              tol) 
+                    n_plant = len(rem_plant)
                     #Check equilibrium
                     equilibrium = check_equilibrium(rem_plant, rem_soil)
             #Check if while loop exited due to exceeding integration cycles or

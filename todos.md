@@ -17,3 +17,10 @@ I am not checking if when the system reaches 2 species, it can keeep going down 
 #### Oct 21,2021
 
 Erase unnecessary packages from `plant_feedback_model.py`
+
+#### Oct 25,2021
+
+modify integrate_PSF so that it performs multiple cycles of integration until
+convergence, or until max_cycle is reached. 
+Can make it recursive!
+Change function of equilibrium by not making it depend on the number of species left, but the number of species whose abundances are 0!
