@@ -4,42 +4,45 @@ library(reshape2)
 library(cowplot)
 library(gridExtra)
 library(RColorBrewer)
+library(ggplot2)
 
 
-data = read_csv('../data/zach_results.csv')
+data <- read_csv('../data/zach_results.csv')
+data <- data %>% mutate(flag = ifelse(p_l == 0 | p_l == 1, 'one', 'two'))
 dev.off()
 p1 = ggplot(data = data,
        aes(x = t, y = p_ab,
            color = as.factor(p_l)))+
-  geom_line(alpha = 0.2)+
-  geom_ma(ma_fun = EMA, n = 150, linetype = 'solid')+
+  geom_line(alpha = 1)+
   theme(aspect.ratio = 3/4,
             panel.background = element_blank(),
             panel.border = element_rect(fill = NA),
             legend.position = 'none',
             axis.title.x = element_text(size = 15),
             axis.title.y = element_text(size = 15),
-            axis.text = element_blank(),
+            #axis.text = element_blank(),
             axis.ticks = element_blank())+
-  scale_color_brewer(palette = 'Set1')+
+  scale_y_log10(limits = c(1e-39, 1))+
+  scale_color_brewer(palette = 'Set1', direction = -1)+
   labs(y = "Abundance",
        x = "Time")
 print(p1)
 
 p2 = ggplot(data = data,
-            aes(x = t, y = p_ab_per,
+            aes(x = t, y = p_ab_per))+
+  geom_line(aes(linetype = flag,
                 color = as.factor(p_l)))+
-  geom_line(alpha = 0.2)+
-  geom_ma(ma_fun = EMA, n = 150, linetype = 'solid')+
   theme(aspect.ratio = 3/4,
         panel.background = element_blank(),
         panel.border = element_rect(fill = NA),
         legend.position = 'none',
         axis.title.x = element_text(size = 15),
         axis.title.y = element_text(size = 15),
-        axis.text = element_blank(),
+        #axis.text = element_blank(),
         axis.ticks = element_blank())+
-  scale_color_brewer(palette = 'Set1')+
+  scale_linetype_manual(values = c('dashed', 'solid'))+
+  scale_y_log10(limits = c(1e-39, 1))+
+  scale_color_brewer(palette = 'Set1', direction = -1)+
   labs(y = "",
        x = "Time")
 print(p2)
@@ -109,7 +112,7 @@ correlation_plot = ggplot(data = data,
   geom_point()+
   geom_abline(slope = 1)+
   theme(aspect.ratio = 1,
-        panel.background = element_blank(),
+        panel.background = element_rect(fill = NA),
         panel.border = element_rect(fill = NA),
         legend.position = 'none',
         axis.title.x = element_text(size = 15),
@@ -119,7 +122,7 @@ correlation_plot = ggplot(data = data,
                      limits = c(0.4, 1.5))+
   scale_y_continuous(breaks = c(0.6, 0.9, 1.2, 1.5),
                      limits = c(0.4, 1.5))+
-  annotate('text', x = 0.6, y = 1.4, label = r_2, parse = T)+
+  annotate('text', x = 0.8, y = 1.4, label = r_2, parse = T)+
   labs(x = 'A', y = expression(A[p]))
   
 print(correlation_plot)
@@ -142,4 +145,20 @@ pdf('../sandbox/dynamics_collapse.pdf', height = 3.5, width  = 12)
 grid.arrange(ptot1, ptot2, correlation_plot,
              layout_matrix = lay)
 dev.off()
+
+plot1_bis = 
+ggdraw()+
+  draw_plot(p1)+ 
+  draw_plot(correlation_plot, x = 0.2, y = 0.32, height = 0.3
+            )
+
+lay <- rbind(c(1, 1, 1, 1, 2, 2, 2, 2),
+             c(1, 1, 1, 1, 2, 2, 2, 2),
+             c(1, 1, 1, 1, 2, 2, 2, 2))
+pdf('../sandbox/dynamics_collapse2.pdf', height = 5.53, width  = 8.45)
+grid.arrange(plot1_bis, p2,
+             layout_matrix = lay)
+dev.off()
+
+
 

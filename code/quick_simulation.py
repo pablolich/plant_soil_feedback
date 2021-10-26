@@ -39,13 +39,14 @@ def main(argv):
     t_vec = []
     p_l = []
     present = np.ones(n)
-    t_max = 2000
+    t_max = 500
     while not equilibrium:
         #Integrate unperurbed system
         plant_ab_per, soil_ab_per, t_per = integrate_PSF(model, [0, t_max], 
                                                          z0_per, 
-                                                         (A_per, B, n), 
-                                                         method = 'RK45')
+                                                         (A_per, B, n),
+                                                         method = 'RK45', 
+                                                         max_step = 1)
         #Delete extinctions 
         rem_plant, rem_soil = remove_extinctions(plant_ab_per[:, -1], 
                                                  soil_ab_per[:, -1], 
@@ -61,8 +62,8 @@ def main(argv):
                                                    soil_ab_per[:, -1],
                                                    rem_soil)
         #Set extinct species to 0
-        plant_ab_per[ext_plant, :] = 0
-        soil_ab_per[ext_soil, :] = 0
+        plant_ab_per[plant_ab_per[:, -1] < tol, :] = 0
+        #soil_ab_per[soil_ab_per[:, -1] < tol, :] = 0
         #Store plant abundance
         p_ab_per += list(plant_ab_per.flatten())
         #Store time

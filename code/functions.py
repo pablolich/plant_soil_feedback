@@ -22,7 +22,7 @@ def model(t, z, A, B, n):
         import ipdb; ipdb.set_trace(context = 20)
     return(list(dpdt.reshape(n)) + list(dqdt.reshape(n)))
 
-def integrate_PSF(fun, t_span, z0, args, method = 'BDF'):
+def integrate_PSF(fun, t_span, z0, args, method = 'BDF', max_step = np.inf):
     '''
     Wrapper for integrator
     '''
@@ -143,7 +143,7 @@ def check_equilibrium_bis(plant_vector, soil_vector):
     '''
     n_plants = sum(plant_vector > 0)
     n_soils = sum(soil_vector > 0)
-    if n_plants > 2 or n_soils > 2:
+    if n_plants > 2:
         #If either plant/soil have more than 2, we have not reached
         #equilibnrium
         equilibrium = False
