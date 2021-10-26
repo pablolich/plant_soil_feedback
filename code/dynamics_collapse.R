@@ -91,14 +91,14 @@ correlation_plot = ggplot(data = data,
         legend.position = 'none',
         axis.title.x = element_text(size = 15),
         axis.title.y = element_text(size = 15),
-        axis.text = element_text(size = 15))+
+        axis.text = element_text(size = 10))+
   labs(x = 'A', y = expression(A[p]))
   
 print(correlation_plot)
 
-yheight = 0.6
-xheight = -0.335
-height = 0.15
+yheight = 0.63
+xheight = -0.30
+height = 0.34
 ptot1 = ggdraw() +
   draw_plot(p1) +
   draw_plot(A_pre_plot, x = xheight, y = yheight, height = height)
@@ -110,7 +110,8 @@ ptot2 = ggdraw() +
 lay <- rbind(c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3),
              c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3),
              c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3))
+pdf('../sandbox/dynamics_collapse.pdf', height = 3.5, width  = 12)
 grid.arrange(ptot1, ptot2, correlation_plot,
              layout_matrix = lay)
-
+dev.off()
 
