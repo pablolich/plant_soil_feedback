@@ -1,0 +1,166 @@
+\documentclass[11pt]{letter} 
+\usepackage{graphicx} % Required for including pictures
+\usepackage[export]{adjustbox} % to left align image
+\usepackage[outdir=./]{epstopdf}
+
+
+\pagestyle{empty} % Suppress headers and footers
+
+\setlength\parindent{0cm} % Paragraph indentation
+
+% Create a new command for the horizontal rule in the document which allows thickness specification
+\makeatletter
+\newcommand{\vhrulefill}[1]{\leavevmode\leaders\hrule\@height#1\hfill \kern\z@}
+\makeatother
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT MARGINS
+%----------------------------------------------------------------------------------------
+
+\usepackage{geometry} % Required for adjusting page dimensions
+
+\geometry{
+	top=1cm, % Top margin
+	bottom=1.5cm, % Bottom margin
+	left=2.5cm, % Left margin
+	right=2.5cm, % Right margin
+	%showframe, % Uncomment to show how the type block is set on the page
+}
+
+%----------------------------------------------------------------------------------------
+%	DEFINE CUSTOM COMMANDS
+%----------------------------------------------------------------------------------------
+
+\newcommand{\logo}[1]{\renewcommand{\logo}{#1}}
+
+\newcommand{\Who}[1]{\renewcommand{\Who}{#1}}
+\newcommand{\Title}[1]{\renewcommand{\Title}{#1}}
+
+\newcommand{\headerlineone}[1]{\renewcommand{\headerlineone}{#1}}
+\newcommand{\headerlinetwo}[1]{\renewcommand{\headerlinetwo}{#1}}
+
+\newcommand{\authordetails}[1]{\renewcommand{\authordetails}{#1}}
+
+%----------------------------------------------------------------------------------------
+%	AUTHOR DETAILS STRUCTURE
+%----------------------------------------------------------------------------------------
+
+\newcommand{\authordetailsblock}{
+	\hspace{\fill} % Move the author details to the far right
+	\parbox[t]{0.58\textwidth}{ % Box holding the author details; width value specifies where it starts and ends, increase to move details left
+		\footnotesize % Use a smaller font size for the details
+		%\Who\\ % Author name
+		\authordetails % The author details text, all italicised
+	}
+}
+
+%----------------------------------------------------------------------------------------
+%	HEADER STRUCTURE
+%----------------------------------------------------------------------------------------
+
+\address{
+	\includegraphics[width=.38in,left]{./uchicago_shield.pdf} % Include the logo of author institution
+	\hspace{0\textwidth} % this does nothing anymore due to left above, otherwise move the logo left and right
+	\vskip -0.116\textheight~\\ % move the logo up or down
+	\Large\hspace{0.2\textwidth} \hfill ~\\[-0.006\textheight] % First line of institution name, if desires, add before hfill. move up and down
+	\hspace{0.08\textwidth}\includegraphics[width=1.6in]{./uchicago_text.pdf}\hfill \normalsize % Second line of institution name, adjust to move the logo left and right
+	\makebox[0ex][r]{\textbf{
+	%\Who\Title
+	}}\hspace{0.01\textwidth} % Print author name and title with a little whitespace to the right
+	~\\[-0.01\textheight] % Reduce the whitespace above the horizontal rule
+	\hspace{0.08\textwidth}\vhrulefill{1pt} \\ % adjust length and with of header line. usually want this value to match the value for the second line of the inst name
+	\noindent\authordetailsblock % Include the letter author's details on the right side of the page under the horizontal rule
+	\hspace{-0.23\textwidth} % Horizontal position of the author details block, increase to move left, decrease to move right
+	\vspace{-0.11\textheight} % Move the date and letter content up for a more compact look
+}
+
+%----------------------------------------------------------------------------------------
+%	COMPOSE THE ENTIRE HEADER
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\opening}[1]{
+	{\centering\noindent\fromaddress\vspace{0.05\textheight} \\ % Print the header and from address here, add whitespace to move date down
+	\hspace*{\longindentation}
+	%\today
+	\hspace*{\fill}\par} % Print today's date, remove \today to not display it
+	{\raggedright \toname \\ \toaddress \par} % Print the to name and address
+	\vspace{0.5cm} % White space after the to address
+	\noindent #1 % Print the opening line
+}
+
+%----------------------------------------------------------------------------------------
+%	SIGNATURE STRUCTURE
+%----------------------------------------------------------------------------------------
+
+\signature{\Who\Title} % The signature is a combination of the author's name and title
+
+\renewcommand{\closing}[1]{
+	\vspace{2.5mm} % Some whitespace after the letter content and before the signature
+	\noindent % Stop paragraph indentation
+	% \hspace*{9.5cm} % Move the signature right to the value of \longindentation
+	\parbox{10cm}{
+		\raggedright
+		#1 % Print the signature text
+		\vskip .2cm % Whitespace between the closing text and author's name for a physical signature
+		Zachary R. Miller % Prints the value of \signature{}, i.e. author name and title
+	}
+}
+
+
+
+%----------------------------------------------------------------------------------------
+%	Your details
+%----------------------------------------------------------------------------------------
+
+
+\Who{Zachary R. Miller} % Your name
+
+\Title{} % Your title, leave blank for no title
+
+\authordetails{
+	%\noindent \\
+	%\Who \\
+	%Department of Ecology \& Evolution\\ % Your department/institution
+	%University of Chicago \\
+	%1101 E.~57th St.\\ % Your address
+	%Chicago, IL 60637, USA\\ % Your city, zip code, country, etc
+	%zachmiller@uchicago.edu\\ % Your email address	
+}
+
+
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	TO ADDRESS
+%----------------------------------------------------------------------------------------
+
+\begin{letter}{
+
+	\today
+}
+
+%----------------------------------------------------------------------------------------
+%	LETTER CONTENT
+%----------------------------------------------------------------------------------------
+
+\opening{Dear Editor,}
+
+\frenchspacing
+
+Please find attached the manuscript, ``No robust coexistence in a canonical model of plant-soil feedbacks,'' by Zachary R.
+Miller, Pablo Lech\'{o}n, and Stefano Allesina, which we would like to submit to \textit{Ecology Letters} as a Letter.
+
+In recent decades, plant-soil feedbacks (PSFs) -- indirect interactions between plants mediated by changes to local soil microbiota and chemistry -- have emerged as a leading mechanism to explain widespread coexistence in natural plant communities. The study of PSFs, both in theory and in the field, has been guided by a modeling framework introduced by Bever, Westover, and Antonovics in a landmark 1997 paper. However, the now-canonical ``Bever model'' is formulated for only two species, while natural communities may contain tens or hundreds of co-occurring plants. Bridging this gap has been a crucial ongoing challenge for the field.
+
+Here, we extend the Bever model to include an arbitrary number of species and use results from evolutionary game theory to thoroughly characterize coexistence in this extended model. Our central finding is that coexistence of more than two species is virtually impossible within this framework. We show that multi-species coexistence can only arise under highly artificial parameter combinations, and collapses when these conditions are violated even slightly. Such fine-tuned conditions never arise by chance, are not robust to inevitable biological variation, and cannot explain coexistence in real-world systems.
+
+These surprising results have significant implications for plant community ecology. The Bever model undergirds the analysis and interpretation of PSF experiments across a wide array of systems, and our findings suggest that applying two-species predictions to richer communities will yield incorrect inference about plant coexistence. Abundant empirical evidence indicates that PSFs do play an important role in maintaining diversity in plant communities; the apparent contradiction between these observations and the model predictions calls for critical reevaluation of model assumptions and urgent exploration of alternative theoretical frameworks.
+
+Our analysis illuminates a long-standing disconnect between the low diversity of a simple, but widely utilized, PSF model, and the high diversity of real-world ecosystems. By demonstrating that this well-known model is incompatible with multi-species coexistence mediated by PSFs, we believe our results will kickstart new interest and progress in the theory behind this rapidly advancing area of ecology. Publishing these findings in Ecology Letters will allow us to reach the broad range of theoreticians and experimentalists across community, plant, and soil ecology who work with and rely on PSF models. 
+ 
+We thank you for your time, and we look forward to hearing from you.
+
+\closing{Sincerely,}
+\end{letter}
+\end{document}
