@@ -179,19 +179,7 @@ def find_extinct_indices(plants, plants_rem, soils, soils_rem):
     ext_soil = list(set(soils) - set(soils_rem))
     o, ext_soil_ind, o = np.intersect1d(soils, ext_soil, 
                                         return_indices = True)
-    return(ext_plant_ind, ext_soil_ind)
+    if len(ext_plant_ind) != len(ext_soil_ind):
+        import ipdb; ipdb.set_trace(context = 20)
 
-def homogenize(vector):
-    '''
-    Homogenize a vector such that all the elements that are one integer
-    appart become equal to the first integer in the sequence
-    '''
-    n = len(vector)
-    new_vector = np.zeros(n)
-    for i in range(n-1):
-        if vector[i+1] - vector[i] == 1:
-            new_vector[i+1] = vector[i]
-        else:
-            new_vector[i+1] = vector[i+1]
-    return new_vector
-
+    return np.intersect1d(ext_plant_ind, ext_soil_ind)

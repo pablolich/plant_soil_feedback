@@ -81,12 +81,10 @@ def main(argv):
             #(3) the number of integration cycles surpasses our limit. 
             while (not equilibrium) & (n_int <= n_int_max):
                 #Find extinct indices of plants and soils 
-                ext_plant, ext_soil = find_extinct_indices(plant_ab[:, -1], 
-                                                           rem_plant, 
-                                                           soil_ab[:, -1],
-                                                           rem_soil)
-                A = remove_extinctions_matrix(A, ext_plant)
-                B = remove_extinctions_matrix(B, ext_soil)
+                ext_ind = find_extinct_indices(plant_ab[:, -1], rem_plant, 
+                                                soil_ab[:, -1], rem_soil)
+                A = remove_extinctions_matrix(A, ext_ind)
+                B = remove_extinctions_matrix(B, ext_ind)
                 #Set initial conditions to the final state of previous 
                 #integration
                 z0 = list(np.hstack([rem_plant, rem_soil]))

@@ -1,7 +1,7 @@
 library(tidyverse)
 
 data = read_csv('../data/results.csv')
-n_sim = round(max(data$n_sim), digits = -2) # number of simulations per inital richness
+dn_sim = round(max(data$n_sim), digits = -2) # number of simulations per inital richness
 
 # Remove non-convergent data (need to filter on n_p_f, rather than n_p)
 # Hopefully we can deal with these cases in the simulation code and eventually

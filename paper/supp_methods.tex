@@ -84,7 +84,7 @@ This last expression is identical to the first line of Eq.~5 in the Main Text. T
 \end{split}
 \end{align}
 or even more compactly as
-\begin{align}
+\begin{align}\label{compact_form}
 \begin{cases}
 \frac{d\bm{p}}{dt} &= D(\bm{p}) \left(A \bm{q} - (\bm{p}^T A \bm{q}) \bm{1} \right) \\
 \frac{d\bm{q}}{dt} &= D(\bm{q}) \left(B \bm{p} - (\bm{q}^T B \bm{p}) \bm{1}  \right) \,
@@ -278,6 +278,9 @@ Each orbit remains in the level set defined by the initial conditions,$(\bm{p}_0
 H(\bm{p}_0, \bm{q}_0) = \sum_i p_i^\star \log p_i + c \sum_j q_j^\star \log q_j 
 \end{equation}
 For the two-species model studied by Bever \textit{et al.}, these level sets precisely define the trajectories in the $(p, q)$ phase plane.
+
+\section{Numerical Simulations}
+In order to offer numerical evidence that complements our analytical findings, we  integrate  Eq.~\ref{compact_form} with 2, 3, 5, and 6 initial plant species and soil communities. For each case, we perform 5000 numerical integrations sampling the payoff matrices at random each time. At each integration we (1) sample non-singular payoff matrices $ A $ and $ B $ from the uniform distribution U(0, 1), and (2) integrate the system until an equilibrium with $\leq 2$ species is reached.
 
 \bibliographystyle{ecol_let}
 \bibliography{references_supp}
