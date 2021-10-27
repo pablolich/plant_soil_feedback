@@ -49,7 +49,6 @@ cleveref,
 	\normalsize{*corresponding author (mailing: 1101 E. 57th Street, Chicago, IL 60637; phone: 484-331-4593)}\\
 }
 
-
 \begin{document}
 	
 \maketitle
@@ -58,20 +57,22 @@ cleveref,
 \noindent Running title: No coexistence in a plant-soil feedback model\\
 Keywords: plant-soil feedbacks, legacy effects, coexistence, Bever model, bimatrix games, replicator equation \\
 
-\noindent Author contributions: ZRM and SA performed the mathematical analysis, and PLA implemented the numerical simulations. ZRM wrote the manuscript, and all authors edited and discussed the text. \\
+\noindent Author contributions: ZRM and SA performed the mathematical analysis, and PLA implemented the numerical simulations. ZRM wrote the manuscript, and all authors edited and discussed the text.\\
 
-\noindent Data accessibility: Code for reproducing the numerical simulations is available at [ADD REPOSITORY].\\
+\noindent Data accessibility: Code for reproducing the numerical simulations is available at\\ \url{https://github.com/pablolich/plant_soil_feedback}.\\
 
 \noindent Article type: Letter\\
-Number of words in abstract: 137\\
-Number of words in main text: \\
-Number of references: 51 \\
+Number of words in abstract: 135\\
+Number of words in main text: 3297\\
+Number of references: 52 \\
 Number of figures: 3
+
+\pagebreak
 
 \linenumbers
 
 \begin{abstract}
-Plant-soil feedbacks (PSFs) are thought to represent a crucial mechanism generating frequency dependent dynamics in plant communities. Negative feedbacks, in particular, are routinely invoked to explain coexistence and the maintenance of diversity in species-rich communities. However, the primary modeling framework used to study PSFs considers only two plant species, and we lack clear theoretical expectations for how these complex interactions play out in communities with natural levels of diversity. Here, we demonstrate that this canonical model for PSFs is equivalent to a well-studied model from evolutionary game theory, and using this equivalence, we are able to characterize the dynamics with an arbitrary number of plant species. Surprisingly, we find that coexistence of more than two species is virtually impossible in this model, suggesting that alternative theoretical frameworks are needed to describe feedbacks observed in diverse natural communities. 
+Plant-soil feedbacks (PSFs) are thought to represent a crucial mechanism generating frequency dependent dynamics in plant communities. Negative feedbacks, in particular, are routinely invoked to explain coexistence and the maintenance of diversity in species-rich communities. However, the primary modeling framework used to study PSFs considers only two plant species, and we lack clear theoretical expectations for how these complex interactions play out in communities with natural levels of diversity. Here, we demonstrate that this canonical model for PSFs is equivalent to a well-studied model from evolutionary game theory, and we use this equivalence to characterize the dynamics with an arbitrary number of plant species. Surprisingly, we find that coexistence of more than two species is virtually impossible in this model, suggesting that alternative theoretical frameworks are needed to describe feedbacks observed in diverse natural communities. 
 \end{abstract}
 
 \section{Introduction}
@@ -113,11 +114,11 @@ q_i^\star &= \frac{\alpha_{jj} - \alpha_{ji}}{\alpha_{ii} - \alpha_{ij} + \alpha
 \end{cases}
 \end{align}
 
-A central finding of the analysis by Bever \textit{et al.} was that the denominator of $q_i^*$, which they termed the ``interaction coefficient'', $I_s$ ($= \alpha_{ii} - \alpha_{ij} + \alpha_{jj} - \alpha_{ji}$), controls the model dynamics: When $I_s > 0$, which represents a community with positive feedbacks, the equilibrium in Eq.~\ref{2spp_eq} is unstable, and the two species cannot coexist. On the other hand, when $I_s < 0$, the equilibrium is neutrally stable, and the dynamics cycle around it, providing a form of non-equilibrium coexistence. In fact, these conclusions depend on the existence of a feasible equilibrium (i.e. positive equilibrium values), which further requires that $\alpha_{ii} < \alpha_{ji}$, for both $i, j = 1, 2$, in order for the model to exhibit coexistence \citep{bever1997incorporating,ke2015incorporating}. 
+A central finding of the analysis by Bever \textit{et al.} was that the denominator of $q_i^\star$, which they termed the ``interaction coefficient'', $I_s$ ($= \alpha_{ii} - \alpha_{ij} + \alpha_{jj} - \alpha_{ji}$), controls the model dynamics: When $I_s > 0$, which represents a community with positive feedbacks, the equilibrium in Eq.~\ref{2spp_eq} is unstable, and the two species cannot coexist. On the other hand, when $I_s < 0$, the equilibrium is neutrally stable, and the dynamics cycle around it, providing a form of non-equilibrium coexistence. In fact, these conclusions depend on the existence of a feasible equilibrium (i.e. positive equilibrium values), which further requires that $\alpha_{ii} < \alpha_{ji}$ for both $i, j = 1, 2$, in order for the model to exhibit coexistence \citep{bever1997incorporating,ke2015incorporating}. 
 
 This coexistence is fragile. Species frequencies oscillate neutrally, similar to the textbook example of Lotka-Volterra predator-prey dynamics. Any stochasticity, external forcing, or time variation in the model parameters can destroy these finely balanced oscillations and cause one species to go extinct \citep{revilla2013plant}. However, coupled with mechanisms that buffer the system from extinctions, such as migration between desynchronized patches or the presence of a seed bank, the negative feedbacks in this model might produce sustained coexistence \citep{revilla2013plant, bever2003soil}. 
 
-Of course, most natural plant communities feature more than two coexisting species, and it is precisely in the most diverse communities where mechanisms of coexistence hold the greatest interest \citep{van2013plant}. While it is not immediately clear how to generalize Eq.~\ref{2spp_relative} to more than two species, Eq.~\ref{2spp_absolute} is naturally extended by maintaining the assumption that the overall growth rate for any plant is a weighted average of its growth rate in each soil type:
+Of course, most natural plant communities feature more than two coexisting species, and it is precisely in the most diverse communities that mechanisms of coexistence hold the greatest interest \citep{van2013plant}. While it is not immediately clear how to generalize Eq.~\ref{2spp_relative} to more than two species, Eq.~\ref{2spp_absolute} is naturally extended by maintaining the assumption that the overall growth rate for any plant is a weighted average of its growth rate in each soil type:
 
 \begin{align} \label{nspp_absolute}
 \begin{cases}
@@ -125,7 +126,7 @@ Of course, most natural plant communities feature more than two coexisting speci
 \frac{dy_i}{dt} &= y_i \left( \beta_i \, p_i \right) \, .
 \end{cases}
 \end{align}
-From Eq.~\ref{nspp_absolute}, one can derive the $n$-species analogue of Eq.~\ref{2spp_relative} (Fig.~\ref{fig:concept}),
+From Eq.~\ref{nspp_absolute}, one can derive the $n$-species analogue of Eq.~\ref{2spp_relative},
 
 \begin{align} \label{nspp_relative}
 \begin{cases}
@@ -133,7 +134,7 @@ From Eq.~\ref{nspp_absolute}, one can derive the $n$-species analogue of Eq.~\re
 \frac{dq_i}{dt} &= q_i \left(\beta_{i} \, p_i - \sum_{j} \beta_{j} \, p_j \, q_j  \right) \,
 \end{cases}
 \end{align}
-giving the dynamics for species and soil component frequencies. Eq.~\ref{nspp_relative} is conveniently expressed in matrix form as
+giving the dynamics for species and soil component frequencies (Fig.~\ref{fig:concept}). Eq.~\ref{nspp_relative} is conveniently expressed in matrix form as
 
 \begin{align} \label{matrix_form}
 \begin{cases}
@@ -142,14 +143,6 @@ giving the dynamics for species and soil component frequencies. Eq.~\ref{nspp_re
 \end{cases}
 \end{align}
 where vectors are indicated in boldface (e.g. $\bm{p}$ is the vector of species frequencies $(p_1, p_2, \dots p_n)^T$ and $\bm{1}$ is a vector of $n$ ones) and $D(\bm{z})$ is the diagonal matrix with vector $\bm{z}$ on the diagonal. We have introduced the matrices $A = (\alpha_{ij})$ and $B = D(\beta_1, \beta_2, \dots \beta_n)$, specifying soil effects on plants and plant effects on soil, respectively. Because $\bm{p}$ and $\bm{q}$ are vectors of frequencies, they must sum to one: $\bm{1}^T \bm{p} = \bm{1}^T \bm{q} = 1$. Using these constraints, one can easily show that the Bever model (Eq.~\ref{2spp_relative}) is a special case of Eqs.~\ref{nspp_relative} and \ref{matrix_form} when $n = 2$.
-
-\begin{figure*}
-	\centering
-	\includegraphics[width=\textwidth]{figure_1.pdf}
-	\caption[Structure of the $n$-species Bever model]
-	{The model described by Eqs.~\ref{nspp_relative}-\ref{matrix_form} is shown here graphically. Plant species (green squares) promote the growth of their respective soil components (brown circles) at a rate $\beta_i$ (gray arrows). In turn, growth of each plant is governed by the mix of soil components present in the system, with the effect of soil component $j$ on species $i$ quantified by the parameter $\alpha_{ij}$ (black arrows). This model is a straightforward extension of the model proposed by \citet{bever1997incorporating} to an arbitrary number of species. Note only selected parameter labels are shown for clarity.}
-	\label{fig:concept}
-\end{figure*}
 
 \subsection{Equivalence to bimatrix game dynamics}
 
@@ -161,40 +154,22 @@ Under the mild condition that matrix $A$ is invertible, Eq.~\ref{matrix_form} ad
 
 As we have seen, when the community consists of two species, the coexistence equilibrium, if feasible, can be either unstable or neutrally stable. In fact, the same is true for the $n$-species extension  \citep[and, more generally, for any bimatrix game dynamics,][]{eshel1983coevolutionary,selten1988note,hofbauer1998evolutionary}. This can be established using straightforward local stability analysis, after accounting for the relative abundance constraints, which imply $p_n = 1 - \sum_{i = 1}^{n-1} p_i$ and $q_n = 1 - \sum_{i = 1}^{n-1} q_i$. Using these substitutions, Eq.~\ref{nspp_relative} can be written as a system of $2 n - 2$ (rather than $2 n$) equations, and the community matrix for this reduced model has a very simple form (see Supplemental Methods). In particular, due to the bipartite structure of the model, the community matrix has all zero diagonal elements, which implies that the eigenvalues of this matrix sum to zero. These eigenvalues govern the stability of the coexistence equilibrium, and this property leaves two qualitatively distinct possibilities: either the eigenvalues have a mix of positive and negative real parts (in which case the equilibrium is unstable), or the eigenvalues all have zero real part (in which case the equilibrium is neutrally stable). Already, we can see that the model never exhibits equilibrium coexistence, regardless of the number of species.
 
-Another notable property of bimatrix game dynamics is that the vector field defined by the model equations is divergence-free or incompressible \citep[see][for a proof]{hofbauer1998evolutionary}. The divergence theorem from vector calculus \citep{arfken1985mathematical} then tells us that Eq.~\ref{matrix_form} cannot have any attractors -- that is, regions of the phase space that ``pull in'' trajectories -- with multiple species. This rules out coexistence in a stable limit cycle or other non-equilibrium attractors (e.g. chaotic attractors). Thus, only the relatively fragile coexistence afforded by neutral oscillations is possible, as in the two-species model.
+Another notable property of bimatrix game dynamics is that the vector field defined by the model equations is divergence-free or incompressible \citep[see][for a proof]{hofbauer1998evolutionary}. The divergence theorem from vector calculus \citep{arfken1985mathematical} then dictates that Eq.~\ref{matrix_form} cannot have any attractors -- that is, regions of the phase space that ``pull in'' trajectories -- with multiple species. This rules out coexistence in a stable limit cycle or other non-equilibrium attractors (e.g. chaotic attractors). Thus, only the relatively fragile coexistence afforded by neutral oscillations is possible, as in the two-species model.
 
 Based on the local stability properties of the coexistence equilibrium, Bever \textit{et al.} concluded that such neutral cycles arise for two species when $\alpha_{11} < \alpha_{21}$ and $\alpha_{22} < \alpha_{12}$. The equivalence between their model and a bimatrix game with two strategies allows us to give a fuller picture of these cycles. Namely, we can identify a constant of motion for the two-species dynamics:
 
 \begin{equation}
 	H = (\alpha_{12} - \alpha_{22}) \log q_1 + (\alpha_{21} - \alpha_{11}) \log q_2 + \beta_2 \log p_1 + \beta_1 \log p_2 .
 \end{equation} 
-Using the chain rule and time derivatives in Eq.~\ref{2spp_relative}, it is easy to show that $\frac{dH}{dt} = 0$ for any plant and soil frequencies (see Supplemental Methods). The level curves of $H$ form closed orbits around the equilibrium when the equilibrium is neutrally stable. Thus, $H$ implicitly defines the trajectories of the model, and can be used to determine characteristics such as the amplitude of oscillations arising from particular initial frequencies.
+Using the chain rule and time derivatives in Eq.~\ref{2spp_relative}, it is easy to show that $\frac{dH}{dt} = 0$ for any plant and soil frequencies (see Supplemental Methods). The level curves of $H$ form closed orbits around the equilibrium when the equilibrium is neutrally stable. Thus, $H$ implicitly defines the trajectories of the model, and can be used to determine characteristics such as the amplitude of oscillations arising from particular initial frequencies \citep{volterra1926variazioni}.
 
-Because neutral cycles provide the only possible form of coexistence in this model, a key question becomes whether and when neutral cycles with $n$ species can arise. Do the ``negative feedback'' conditions identified by Bever \textit{et al.} generalize in richer communities? Indeed, they do; however, for more than two species, these conditions are very severe. The model in Eq.~\ref{matrix_form} supports oscillations with $n$ species -- for any $n$ -- if matrices $A$ and $B$ satisfy a precise relationship (Fig.~\ref{fig:fragile}; see Supplemental Methods for details). In particular, the model parameters must satisfy the conditions $\alpha_{ij} = \gamma_i + \delta_j$ for some constants $\gamma_i, \delta_i$ in $i = 1, \dots, n$ (when $i \neq j$), and $\alpha_{ii} = \gamma_i + \delta_i- c \beta_i$ (where $c$ is a positive constant independent of $i$). In the language of bimatrix games, such systems are called \emph{rescaled zero-sum games} \citep{hofbauer1996evolutionary,hofbauer1998evolutionary}. It is a long-standing conjecture in evolutionary game theory that these parameterizations are the \emph{only} cases where $n$-species coexistence can occur \citep{hofbauer1996evolutionary,hofbauer2011deterministic}.
+Because neutral cycles provide the only possible form of coexistence in this model, a key question becomes whether and when neutral cycles with $n$ species can arise. Do the ``negative feedback'' conditions identified by Bever \textit{et al.} generalize in richer communities? Indeed, they do; however, for more than two species, these conditions are very severe. The model in Eq.~\ref{matrix_form} supports oscillations with $n$ species -- for any $n$ -- if matrices $A$ and $B$ satisfy a precise relationship (see Supplemental Methods for details). In particular, the model parameters must satisfy the conditions $\alpha_{ij} = \gamma_i + \delta_j$ for some constants $\gamma_i, \delta_i$ in $i = 1, \dots, n$ (when $i \neq j$), and $\alpha_{ii} = \gamma_i + \delta_i- c \beta_i$ (where $c$ is a positive constant independent of $i$). In the language of bimatrix games, such systems are called \emph{rescaled zero-sum games} \citep{hofbauer1996evolutionary,hofbauer1998evolutionary}. It is a long-standing conjecture in evolutionary game theory that these parameterizations are the \emph{only} cases where $n$-species coexistence can occur \citep{hofbauer1996evolutionary,hofbauer2011deterministic}.
 
-Ecologically, these conditions mean there is a fixed effect of each soil type and plant species identity, and the growth rate of plant $i$ in soil type $j$ is the additive combination of these two, with no interaction effects. The only exception is for plants growing in their own soil type, which must experience a fitness cost ($\gamma_i + \delta_i - \alpha_{ii}$) exactly proportional to the rate at which they promote growth of the soil type ($\beta_i$).  
-These conditions clearly extend the intuitive notion that each plant must have a disadvantage in its corresponding soil type to allow coexistence. But the parameters of the model are constrained so strongly that we never expect to observe cycles with more than two species in practice. When $n > 2$, a great deal of fine-tuning is necessary to satisfy the conditions yielding a rescaled zero-sum game; the probability that random parameters will be suitable is infinitesimally small. We confirm this numerically with simulations shown in Fig.~\ref{fig:histograms}. Although $n$-species cycles are clearly possible (as in Fig.~\ref{fig:fragile}), for parameters drawn independently at random, communities always collapse to zero, one, or two species, regardless of the initial richness. 
+Ecologically, these conditions mean there is a fixed effect of each soil type and plant species identity, and the growth rate of plant $i$ in soil type $j$ is the additive combination of these two, with no interaction effects. The only exception is for plants growing in their own soil type, which must experience a fitness cost ($\gamma_i + \delta_i - \alpha_{ii}$) exactly proportional to the rate at which they promote growth of their soil type ($\beta_i$). These conditions clearly extend the intuitive notion that each plant must have a disadvantage in its corresponding soil type to allow coexistence. But the parameters of the model are constrained so strongly that we never expect to observe cycles with more than two species in practice. When $n > 2$, a great deal of fine-tuning is necessary to satisfy the conditions yielding a rescaled zero-sum game; the probability that random parameters will be suitable is infinitesimally small. We confirm this numerically with simulations shown in Fig.~\ref{fig:histograms}. Although $n$-species cycles are clearly possible (as in Fig.~\ref{fig:fragile}), for parameters drawn independently at random, communities always collapse to one or two species, regardless of the initial richness. 
 
 Not only are parameter combinations permitting many-species oscillations rare, they are also extremely sensitive to small changes to the parameter values. The rescaled zero-sum condition imposes many exact equality constraints on the matrix $A$ (e.g. $\alpha_{ij} - \alpha_{ik} = \alpha_{lj} - \alpha_{lk}$ for all $i, j, k,$ and $l$). Even if mechanisms exist to generate the requisite qualitative patterns, inevitable quantitative variation in real-world communities will disrupt coexistence (Fig.~\ref{fig:fragile}). Coexistence of $n > 2$ species -- even in the weak sense of neutral cycles -- is not robust to small changes in the model parameters.
 
 Interestingly, the two-species model is not subject to the same fragility. It can be shown (see Supplemental Methods) that all $2 \times 2$ bimatrix games take the same general form as a rescaled zero-sum game, although the constant $c$ may be positive or negative, depending on the parameters. When $I_s$, the interaction coefficient identified by Bever \textit{et al.}, is negative, $c$ is positive, ensuring (neutral) stability. This condition amounts to an inequality constraint, rather than an equality constraint, and so it \emph{is} generally robust to small variations in model parameters (Fig.~\ref{fig:fragile}). As we can now see, the case $n = 2$ is unique in this regard. 
-
-\begin{figure*}
-	\centering
-	\includegraphics[width=\textwidth]{figure_2.pdf}
-	\caption[Final community sizes with varying initial richness]
-	{Final community sizes with varying initial richness. We show the distribution of final richness (number of species, in red) for 500 \textbf{(???)} communities governed by the $n$-species Bever model, initialized with 2, 3, 5, or 6 plant species. Parameters $\alpha_{ij}$ and $\beta_{i}$  were sampled independently from a standard uniform distribution, $U[0,1]$. For each random parameterization at each level of initial richness, we integrated the dynamics of Eq.~\ref{matrix_form} until the system reached a periodic orbit or until only one species remained. In agreement with the conjecture that coexistence of more than two species is vanishingly unlikely, we found that, regardless of the number of species initially present, every community collapsed to a subset of one or two surviving species.}
-	\label{fig:histograms}
-\end{figure*}
-
-
-\begin{figure*}
-	\centering
-	\includegraphics[width=\textwidth]{figure_3.pdf}
-	\caption{Caption for Fig3}
-	\label{fig:fragile}
-\end{figure*}
-
 
 \section{Discussion}
 
@@ -217,6 +192,29 @@ We thank ...
 
 \bibliographystyle{ecol_let}
 \bibliography{references}
+
+\begin{figure*}
+	\centering
+	\includegraphics[width=\textwidth]{figure_1.pdf}
+	\caption[Structure of the $n$-species Bever model]
+	{The model described by Eqs.~\ref{nspp_relative}-\ref{matrix_form} is shown here graphically. Plant species (green squares) promote the growth of their respective soil components (brown circles) at a rate $\beta_i$ (gray arrows). In turn, growth of each plant is governed by the mix of soil components present in the system, with the effect of soil component $j$ on species $i$ quantified by the parameter $\alpha_{ij}$ (black arrows). This model is a straightforward extension of the model proposed by \citet{bever1997incorporating} to an arbitrary number of species. Note only selected parameter labels are shown for clarity.}
+	\label{fig:concept}
+\end{figure*}
+
+\begin{figure*}
+	\centering
+	\includegraphics[width=\textwidth]{figure_2.pdf}
+	\caption[Final community sizes with varying initial richness]
+	{Final community sizes with varying initial richness. We show the distribution of final richness (number of species, in red) for 5000 communities governed by the $n$-species Bever model, initialized with 2, 3, 5, or 6 plant species. Parameters $\alpha_{ij}$ and $\beta_{i}$ were sampled independently from a standard uniform distribution, $U(0,1)$. For each random parameterization at each level of initial richness, we integrated the dynamics of Eq.~\ref{matrix_form} until the system reached a periodic orbit or until only one species remained. In agreement with the conjecture that coexistence of more than two species is vanishingly unlikely, we found that regardless of the number of species initially present, every community collapsed to a subset of one or two surviving species.}
+	\label{fig:histograms}
+\end{figure*}
+
+\begin{figure*}
+	\centering
+	\includegraphics[width=\textwidth]{figure_3.pdf}
+	\caption[Coexistence of three or more species is not robust]{Coexistence of three or more species is not robust. It is possible to obtain neutrally stable oscillations with any number of species if the model parameters constitute a rescaled zero-sum game (see text for conditions). Here, for example, we show sustained oscillations with 4 species using fine-tuned parameters, $A_u$ (left). However, if we randomly perturb $A_u$ by a small amount to obtain new parameters, $A_p$, the dynamics quickly collapse to a two-species subset (right). Any slight perturbation is enough to disrupt coexistence; for this example, the parameters $A_u$ and $A_p$ are highly correlated (inset) and differ in value by less than 3\% on average.}
+	\label{fig:fragile}
+\end{figure*}
 
 \end{document}
 %%% Local Variables:
