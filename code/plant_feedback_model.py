@@ -62,13 +62,15 @@ def main(argv):
             #Delete extinctions (only those that happen simultaneously in both
             #vectors). Failing to do so would be a conceptual mistake, since
             #If a plant goes extinct, so does its soil.
-            rem_plant, rem_soil = remove_extinctions(plant_ab[:, -1], 
-                                                     soil_ab[:, -1], 
-                                                     tol) 
+            #Set extinctions to 0
+            plant_ab[plant_ab[:, -1] < tol, :] = 0
+            #rem_plant, rem_soil = remove_extinctions(plant_ab[:, -1], 
+            #                                         soil_ab[:, -1], 
+            #                                         tol) 
             #Check if we have reached equilibrium
-            equilibrium = check_equilibrium(rem_plant, rem_soil)
+            equilibrium = check_equilibrium_bis(plant_ab[:, -1], soil_ab[:, -1])
             #Update number of plants
-            n_plant = len(rem_plant)
+            #n_plant = len(rem_plant)
             ###################################################################
             #NOTE THAT THIS IS NOT ENTIRELY CORRECT, NEED TO ADD A SNIPPET
             #CHECKING FOR PARTNERSHIP/ZERO-SUM GAME
@@ -81,17 +83,18 @@ def main(argv):
             #(3) the number of integration cycles surpasses our limit. 
             while (not equilibrium) & (n_int <= n_int_max):
                 #Find extinct indices of plants and soils 
-                ext_ind = find_extinct_indices(plant_ab[:, -1], rem_plant, 
-                                                soil_ab[:, -1], rem_soil)
-                A = remove_extinctions_matrix(A, ext_ind)
-                B = remove_extinctions_matrix(B, ext_ind)
+                #ext_ind = find_extinct_indices(plant_ab[:, -1], rem_plant, 
+                #                                soil_ab[:, -1], rem_soil)
+                #A = remove_extinctions_matrix(A, ext_ind)
+                #B = remove_extinctions_matrix(B, ext_ind)
                 #Set initial conditions to the final state of previous 
                 #integration
-                z0 = list(np.hstack([rem_plant, rem_soil]))
+                #z0 = list(np.hstack([rem_plant, rem_soil]))
+                z0 = list(np.hstack([plant_ab[:, -1], soil_ab[:, -1]]))
                 #Solve diferential equations again
                 #Re-integrate system
                 plant_ab, soil_ab, t = integrate_PSF(model, [1, 2000], z0, 
-                                                     (A, B, n_plant))
+                                                     (A, B, n))
                 #Increase integration cycle counter
                 n_int += 1
                 #Check for convergence 
@@ -104,12 +107,12 @@ def main(argv):
                     break
                 else:
                     #Remove extinctions after integration
-                    rem_plant, rem_soil = remove_extinctions(plant_ab[:, -1], 
-                                                             soil_ab[:, -1], 
-                                                             tol) 
-                    n_plant = len(rem_plant)
+                    #rem_plant, rem_soil = remove_extinctions(plant_ab[:, -1], 
+                    #                                         soil_ab[:, -1], 
+                    #                                         tol) 
                     #Check equilibrium
-                    equilibrium = check_equilibrium(rem_plant, rem_soil)
+                    equilibrium = check_equilibrium_bis(plant_ab[:, -1], 
+                                                    soil_ab[:, -1])
             #Check if while loop exited due to exceeding integration cycles or
             #if the integration diverged
             if not convergence:
@@ -123,7 +126,7 @@ def main(argv):
                 #Don't count this simulation
                 n_act -= 1
             else:
-                df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = len(rem_plant)
+                df.loc[n_act + n_sim*n_vec_it, 'n_p_f'] = sum(plant_ab[:, -1]>0)
             n_act += 1
             print(n_act, 'equilibria reached for ', n_vec[n_vec_it], 
                   'starting species', end = '\r')

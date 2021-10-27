@@ -179,7 +179,5 @@ def find_extinct_indices(plants, plants_rem, soils, soils_rem):
     ext_soil = list(set(soils) - set(soils_rem))
     o, ext_soil_ind, o = np.intersect1d(soils, ext_soil, 
                                         return_indices = True)
-    if len(ext_plant_ind) != len(ext_soil_ind):
-        import ipdb; ipdb.set_trace(context = 20)
 
     return np.intersect1d(ext_plant_ind, ext_soil_ind)
