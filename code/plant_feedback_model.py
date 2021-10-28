@@ -69,12 +69,6 @@ def main(argv):
             #                                         tol) 
             #Check if we have reached equilibrium
             equilibrium = check_equilibrium_bis(plant_ab[:, -1], soil_ab[:, -1])
-            #Update number of plants
-            #n_plant = len(rem_plant)
-            ###################################################################
-            #NOTE THAT THIS IS NOT ENTIRELY CORRECT, NEED TO ADD A SNIPPET
-            #CHECKING FOR PARTNERSHIP/ZERO-SUM GAME
-            ###################################################################
             #Initialize counter for number of integrations (integration cycles 
             #will stop if n_int is more than n_int_max)
             n_int = 0
