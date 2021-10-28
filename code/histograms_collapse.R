@@ -24,7 +24,8 @@ data %>% ggplot(aes(x = num_species,
                     linetype = type)) + 
   geom_histogram(position = "identity",
                  alpha = 0.5,
-                 binwidth = 1) +
+                 binwidth = 1,
+                 size = 0.3) +
   facet_wrap(.~n_p, nrow = 4) + 
   theme_classic() + 
   theme(axis.title = element_text(size = 15),
