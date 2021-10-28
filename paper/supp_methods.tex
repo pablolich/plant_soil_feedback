@@ -66,7 +66,7 @@ As described in the Main Text, we begin with the system
 \frac{dy_i}{dt} &= y_i \left( \beta_i \, p_i \right)
 \end{cases}
 \end{align}
-governing the time-evolution of plant abundances $x_i$ and soil components $y_i$, where $p_i = x_i / \sum_j x_j$, $q_i = y_i / \sum_j y_j$, and Greek letters denote nonnegative parameters. These equations capture the assumptions outlined by \citet{bever1997incorporating} for two species and extend them straightforwardly to any $n$ species. Following the approach of Bever \textit{et al.} for two species \citep[and consistent with other generalizations of this model,][]{kulmatiski2008plant,eppinga2018frequency}, we derive dynamics for the $p_i$ by applying the chain rule:
+governing the time-evolution of plant abundances $x_i$ and soil components $y_i$, where $p_i = x_i / \sum_j x_j$, $q_i = y_i / \sum_j y_j$, and Greek letters denote nonnegative parameters. These equations capture the assumptions outlined by \citet{bever1997incorporating} for two species and extend them straightforwardly to any $n$ species. Following the approach of Bever \textit{et al.} for two species \citep[and consistent with other generalizations of this model, e.g.,][]{kulmatiski2008plant,eppinga2018frequency}, we derive dynamics for the $p_i$ by applying the chain rule:
 
 \begin{align} \label{derive_relative}
 \begin{split}
@@ -146,7 +146,7 @@ The elements of the community matrix (the Jacobian evaluated at the coexistence 
 	&= 0
 \end{split}
 \end{align}
-Here, we have used the fact that $A \bm{q^*} \propto \bm{1}$. Notice that, because the factors in parentheses in Eq.~\ref{reduced} are zero at equilibrium, these community matrix calculations are valid even for $i = j$.
+Here, we have used the fact that $A \bm{q^\star} \propto \bm{1}$. Notice that, because the factors in parentheses in Eq.~\ref{reduced} are zero at equilibrium, these community matrix calculations are valid even for $i = j$.
 
 The other elements are computed similarly:
 
@@ -265,14 +265,14 @@ is a constant of motion for the dynamics \citep{hofbauer1998evolutionary}. As ab
 	\intertext{Now, because $A = -c B^T$, we have}
 	&= c \sum_i \beta_i \left( -(p_i^\star - p_i) \, q_i + (q_i^\star - q_i) \, p_i \right)\\
 	&= c \sum_i \beta_i \left( -p_i^\star \, q_i + q_i^\star \, p_i \right)
-	\intertext{and because $q_i^* = p_i^* = \frac{Z}{\beta_{i}}$, with $Z$ the normalizing constant,}
+	\intertext{and because $q_i^\star = p_i^\star = \frac{Z}{\beta_{i}}$, with $Z$ the normalizing constant,}
 	&= c \, Z \, \sum_i (-q_i + p_i) \\
 	&= 0
 	\end{split}
 \end{align}
 In the last line, we use the fact that both sets of frequencies always sum to one.
 
-Each orbit remains in the level set defined by the initial conditions,$(\bm{p}_0, \bm{q}_0)$:
+Each orbit remains in the level set defined by the initial conditions, $(\bm{p}_0, \bm{q}_0)$:
 
 \begin{equation}
 H(\bm{p}_0, \bm{q}_0) = \sum_i p_i^\star \log p_i + c \sum_j q_j^\star \log q_j 
@@ -280,7 +280,7 @@ H(\bm{p}_0, \bm{q}_0) = \sum_i p_i^\star \log p_i + c \sum_j q_j^\star \log q_j
 For the two-species model studied by Bever \textit{et al.}, these level sets precisely define the trajectories in the $(p, q)$ phase plane.
 
 \section{Numerical Simulations}
-In order to offer numerical evidence that complements our analytical findings, we  integrate  Eq.~\ref{compact_form} with 2, 3, 5, and 6 initial plant species and soil communities. For each case, we perform 5000 numerical integrations sampling the payoff matrices at random each time. At each integration we (1) sample non-singular payoff matrices $ A $ and $ B $ from the uniform distribution U(0, 1), and (2) integrate the system until an equilibrium with $\leq 2$ species is reached.
+To complement our analytical findings, we investigated the dynamics of many randomly parameterized communities using numerical simulations. In particular, we integrated  Eq.~\ref{compact_form} with 2, 3, 5, or 6 initial plant species and corresponding soil components. For each case, we sampled 5000 parameter sets at random and integrated the dynamics in Python using SciPy's (version 1.7.1) solve\_ivp function with the ``BDF'' method. We sampled non-singular payoff matrices $ A $ and $ B $ with each non-zero element drawn independently from the uniform distribution U(0, 1). For every choice of parameters, we integrated the system until a subset with $\leq 2$ species was reached (which occurred in all cases). Code for reproducing all numerical simulations is available at  \url{https://github.com/pablolich/plant_soil_feedback}.
 
 \bibliographystyle{ecol_let}
 \bibliography{references_supp}
