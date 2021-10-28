@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.1.12)  27 OCT 2021 14:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.1.12)  27 OCT 2021 18:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -954,11 +954,11 @@ Package rerunfilecheck Info: File `supp_methods.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 288.
  ) 
 Here is how much of TeX's memory you used:
- 31115 strings out of 494923
- 734052 string characters out of 6180742
+ 31117 strings out of 494923
+ 734076 string characters out of 6180742
  919254 words of memory out of 5000000
- 33862 multiletter control sequences out of 15000+600000
- 15073 words of font info for 55 fonts, out of 8000000 for 9000
+ 33863 multiletter control sequences out of 15000+600000
+ 15241 words of font info for 56 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  62i,20n,96p,1320b,609s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
@@ -978,11 +978,12 @@ hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/te
 xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/
 texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-d
 ist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on supp_methods.pdf (12 pages, 234998 bytes).
+ts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmtt10.pfb>
+Output written on supp_methods.pdf (12 pages, 247174 bytes).
 PDF statistics:
- 280 PDF objects out of 1000 (max. 8388607)
- 244 compressed objects within 3 object streams
+ 285 PDF objects out of 1000 (max. 8388607)
+ 248 compressed objects within 3 object streams
  55 named destinations out of 1000 (max. 500000)
  77 words of extra memory for PDF output out of 10000 (max. 10000000)
 
