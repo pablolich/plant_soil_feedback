@@ -82,9 +82,9 @@ def check_feasibility(A, n):
     '''
     #Calculate equilibrium signs to check for feasibility
     eq_prop = np.linalg.inv(A) @ np.ones(n).reshape(n, 1)
-    if np.all(eq_prop > 0):
-        feasibility = False
-    return feasibility
+    #Check if all have the same sign
+    feasibility = np.all(eq_prop>0) if eq_prop[0] > 0 else np.all(eq_prop < 0)
+    return feasibility 
 
 def check_singularity(A):
     '''

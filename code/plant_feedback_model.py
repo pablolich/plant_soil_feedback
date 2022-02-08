@@ -41,12 +41,14 @@ def main(argv):
         while n_act < n_sim:
             #Sample random matrix A 
             A_cand = np.random.random(size = (n, n))
-            #Ensure that A is not singular and that it is feasible
+            #Ensure that A is not singular and feasible
             singular = check_singularity(A_cand)
-            while singular:
+            feasible = check_feasibility(A_cand, n)
+            while singular or not feasible:
                 A_cand = np.random.random(size = (n, n))
                 singular = check_singularity(A_cand)
-            #After ensuring non-singularity of A_cand, declare it as A
+                feasible = check_feasibility(A_cand, n)
+            #Sample random matrix A 
             A = A_cand
             #Sample matrix B
             B = np.diag(np.random.random(size = n))
