@@ -6,6 +6,7 @@ import sys
 import numpy as np
 import matplotlib.pylab as plt
 from functions import *
+import pandas as pd
 
 ## CONSTANTS ##
 
@@ -34,13 +35,15 @@ def main(argv):
         for i in epsilon:
             sol = solve_ivp(model_timescale, t_span = [1, 500], y0 = 2*n*[1/n], 
                             method = 'BDF', args =(A, B, n, i))
-            np.savetxt('../data/time_series_t'+str(sim)+'.txt', sol.t)
+            np.savetxt('../data/time_series'+str(sim)+'.txt', sol.t)
             #Check for divergence
             if np.any(sol.y[:, -1] > 1+tol):
                 plt.close()
                 break
             for j in range(len(sol.y)):
-                np.savetxt('../data/time_series'+str(sim)+'.txt', sol.y)
+                df = pd.DataFrame(sol.y)
+                df.to_csv('../data/time_series'+str(sim)+'.txt')
+                #np.savetxt('../data/time_series'+str(sim)+'.txt', sol.y)
                 if j < n:
                     if j == n-2:
                         axs[sim].plot(sol.t, sol.y[j,:], 'g', label='plant')
