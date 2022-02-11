@@ -15,7 +15,7 @@ from functions import *
 def main(argv):
     '''Main function'''
     #vector of timescales
-    epsilon = np.array([1, 5, 10])
+    epsilon = np.array([1, 10, 100])
     #set tolerance
     tol=1e-9
     #Number of species 
@@ -34,11 +34,13 @@ def main(argv):
         for i in epsilon:
             sol = solve_ivp(model_timescale, t_span = [1, 500], y0 = 2*n*[1/n], 
                             method = 'BDF', args =(A, B, n, i))
+            np.savetxt('../data/time_series_t'+str(sim)+'.txt', sol.t)
             #Check for divergence
             if np.any(sol.y[:, -1] > 1+tol):
                 plt.close()
                 break
             for j in range(len(sol.y)):
+                np.savetxt('../data/time_series'+str(sim)+'.txt', sol.y)
                 if j < n:
                     if j == n-2:
                         axs[sim].plot(sol.t, sol.y[j,:], 'g', label='plant')
@@ -54,6 +56,8 @@ def main(argv):
             sim += 1
         if sim == len(epsilon):
             divergent = False
+            np.savetxt('../data/A.txt', A)
+            np.savetxt('../data/B.txt', B)
     plt.legend()
     plt.show()
     return 0
