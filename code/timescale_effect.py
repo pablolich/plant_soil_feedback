@@ -33,7 +33,7 @@ def main(argv):
         fig, axs = plt.subplots(3)
         fig.subplots_adjust(hspace=0.5)
         for i in epsilon:
-            sol = solve_ivp(model_timescale, t_span = [1, 500], y0 = 2*n*[1/n], 
+            sol = solve_ivp(model_timescale, t_span = [1, 100], y0 = 2*n*[1/n], 
                             method = 'BDF', args =(A, B, n, i))
             np.savetxt('../data/time_series'+str(sim)+'.txt', sol.t)
             #Check for divergence
