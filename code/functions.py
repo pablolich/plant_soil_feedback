@@ -199,7 +199,7 @@ def find_extinct_indices(plants, plants_rem, soils, soils_rem):
 
     return np.intersect1d(ext_plant_ind, ext_soil_ind)
 
-def integrate_n(A, B, n, tol, n_int_max):
+def integrate_n(A, B, n, tol, n_int_max, epsilon):
     '''
     Integrate system as many times as needed until. Keep integrating system 
     until (1) it diverges, (2) it converges to an equilibrium with 2 or less 
@@ -207,8 +207,8 @@ def integrate_n(A, B, n, tol, n_int_max):
     limit. 
     '''
     #Integrate
-    plant_ab, soil_ab, t = integrate_PSF(model, [1, 2000], 2*n*[1/n], 
-                                         (A, B, n))
+    plant_ab, soil_ab, t = integrate_PSF(model_timescale, [1, 2000], 2*n*[1/n], 
+                                         (A, B, n, epsilon))
     #Check for convergence 
     convergence = check_convergence(plant_ab[:, -1], soil_ab[:, -1],
                                     tol)
@@ -226,18 +226,32 @@ def integrate_n(A, B, n, tol, n_int_max):
         #integration
         z0 = list(np.hstack([plant_ab[:, -1], soil_ab[:, -1]]))
         #Re-integrate system
-        plant_ab, soil_ab, t = integrate_PSF(model, [1, 2000], z0, 
-                                             (A, B, n))
+        plant_ab, soil_ab, t = integrate_PSF(model_timescale, [1, 2000], z0, 
+                                             (A, B, n, epsilon))
         #Increase integration cycle counter
         n_int += 1
         #Check for convergence 
         convergence = check_convergence(plant_ab[:, -1], 
                                         soil_ab[:, -1], tol)
         if not convergence:
-            break
+            return 0
         else:
             #Check equilibrium
             equilibrium = check_equilibrium_bis(plant_ab[:, -1], 
                                             soil_ab[:, -1])
-    n_final = len(np.where(plant_ab[:, -1]>0)[0])
-    return(n_final)
+    return(plant_ab, soil_ab, t)
+
+def sample_A(n):
+    '''
+    Sample a feasible and non-singular A
+    '''
+    #Sample random matrix A 
+    A_cand = np.random.random(size = (n, n))
+    #Ensure that A is not singular and feasible
+    singular = check_singularity(A_cand)
+    feasible = check_feasibility(A_cand, n)
+    while singular or not feasible:
+        A_cand = np.random.random(size = (n, n))
+        singular = check_singularity(A_cand)
+        feasible = check_feasibility(A_cand, n)
+    return A_cand
