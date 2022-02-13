@@ -21,7 +21,7 @@ def model(t, z, A, B, n):
 
 def model_timescale(t, z, A, B, n, epsilon):
     '''
-    Diferential equations of plant-feedback model.
+    Diferential equations of plant-feedback model with time scale parameter.
     '''
     #Separate plant and soil vecotrs and reshape
     p = np.array(z[0:n]).reshape(n, 1)
@@ -33,6 +33,23 @@ def model_timescale(t, z, A, B, n, epsilon):
     dpdt = np.diag(p.transpose()[0]) @ (A @ q - \
             (p.transpose()[0] @ A @ q) * Iq) 
     dqdt = epsilon*np.diag(q.transpose()[0]) @ (B @ p - \
+            (q.transpose()[0] @ B @ p) * Ip)
+    return(list(dpdt.reshape(n)) + list(dqdt.reshape(n)))
+
+def model_self_regulation(t, z, A, B, n, c):
+    '''
+    Diferential equations of plant-feedback model with weak self regulation.
+    '''
+    #Separate plant and soil vecotrs and reshape
+    p = np.array(z[0:n]).reshape(n, 1)
+    q = np.array(z[n:n + n]).reshape(n, 1)
+    #Create column vector of ones
+    Ip = np.ones(shape = n).reshape(n, 1)
+    Iq = np.ones(shape = n).reshape(n, 1)
+    #Model equations
+    dpdt = np.diag(p.transpose()[0]) @ (A @ q - c*p -\
+            (p.transpose()[0] @ (A @ q - c*p)) * Iq)
+    dqdt = np.diag(q.transpose()[0]) @ (B @ p - \
             (q.transpose()[0] @ B @ p) * Ip)
     return(list(dpdt.reshape(n)) + list(dqdt.reshape(n)))
 
@@ -60,8 +77,7 @@ def plot_solution(t, f_t, n_p):
     for i in range(n):
         if i < n_p:
             plt.plot(t, f_t[i,:])
-        else:
-            plt.plot(t, f_t[i,:], 'white')
+        else: continue
     return 0
 
 def sampling_matrices(n):
@@ -255,3 +271,6 @@ def sample_A(n):
         singular = check_singularity(A_cand)
         feasible = check_feasibility(A_cand, n)
     return A_cand
+
+def search_next(n):
+    return 1 if n==2 else 2
