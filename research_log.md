@@ -1,3 +1,4 @@
+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
 #### Jul 19,2021
 
 
@@ -86,6 +87,6 @@ Record number of cycles.
 If after n integration cycles there is no convergence, raise an error and save
 the parameters of the system (that is, matrix A and B)
 
-#### Oct 14,2021
+#### Feb 08,2022
 
-d
+Check for feasibility accordingto what specified in line 144.

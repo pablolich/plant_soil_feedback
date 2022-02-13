@@ -13,13 +13,44 @@ def model(t, z, A, B, n):
     Ip = np.ones(shape = n).reshape(n, 1)
     Iq = np.ones(shape = n).reshape(n, 1)
     #Model equations
-    try:
-        dpdt = np.diag(p.transpose()[0]) @ (A @ q - \
-                (p.transpose()[0] @ A @ q) * Iq) 
-        dqdt = np.diag(q.transpose()[0]) @ (B @ p - \
-                (q.transpose()[0] @ B @ p) * Ip)
-    except:
-        import ipdb; ipdb.set_trace(context = 20)
+    dpdt = np.diag(p.transpose()[0]) @ (A @ q - \
+            (p.transpose()[0] @ A @ q) * Iq) 
+    dqdt = np.diag(q.transpose()[0]) @ (B @ p - \
+            (q.transpose()[0] @ B @ p) * Ip)
+    return(list(dpdt.reshape(n)) + list(dqdt.reshape(n)))
+
+def model_timescale(t, z, A, B, n, epsilon):
+    '''
+    Diferential equations of plant-feedback model with time scale parameter.
+    '''
+    #Separate plant and soil vecotrs and reshape
+    p = np.array(z[0:n]).reshape(n, 1)
+    q = np.array(z[n:n + n]).reshape(n, 1)
+    #Create column vector of ones
+    Ip = np.ones(shape = n).reshape(n, 1)
+    Iq = np.ones(shape = n).reshape(n, 1)
+    #Model equations
+    dpdt = np.diag(p.transpose()[0]) @ (A @ q - \
+            (p.transpose()[0] @ A @ q) * Iq) 
+    dqdt = epsilon*np.diag(q.transpose()[0]) @ (B @ p - \
+            (q.transpose()[0] @ B @ p) * Ip)
+    return(list(dpdt.reshape(n)) + list(dqdt.reshape(n)))
+
+def model_self_regulation(t, z, A, B, n, c):
+    '''
+    Diferential equations of plant-feedback model with weak self regulation.
+    '''
+    #Separate plant and soil vecotrs and reshape
+    p = np.array(z[0:n]).reshape(n, 1)
+    q = np.array(z[n:n + n]).reshape(n, 1)
+    #Create column vector of ones
+    Ip = np.ones(shape = n).reshape(n, 1)
+    Iq = np.ones(shape = n).reshape(n, 1)
+    #Model equations
+    dpdt = np.diag(p.transpose()[0]) @ (A @ q - c*p -\
+            (p.transpose()[0] @ (A @ q - c*p)) * Iq)
+    dqdt = np.diag(q.transpose()[0]) @ (B @ p - \
+            (q.transpose()[0] @ B @ p) * Ip)
     return(list(dpdt.reshape(n)) + list(dqdt.reshape(n)))
 
 def integrate_PSF(fun, t_span, z0, args, method = 'BDF', max_step = np.inf):
@@ -27,7 +58,7 @@ def integrate_PSF(fun, t_span, z0, args, method = 'BDF', max_step = np.inf):
     Wrapper for integrator
     '''
     #Solve diferential equations
-    sol = solve_ivp(model, t_span, z0, method = method, args = args)
+    sol = solve_ivp(fun, t_span, z0, method = method, args = args)
 
     #Get number of species 
     n = args[-1]
@@ -37,14 +68,16 @@ def integrate_PSF(fun, t_span, z0, args, method = 'BDF', max_step = np.inf):
     t = sol.t
     return (plant_ab, soil_ab, t)
 
-def plot_solution(t, f_t):
+def plot_solution(t, f_t, n_p):
     '''
     Plot solution
     '''
     #Get number of species 
     n = len(f_t)
     for i in range(n):
-        plt.plot(t, f_t[i,:])
+        if i < n_p:
+            plt.plot(t, f_t[i,:])
+        else: continue
     return 0
 
 def sampling_matrices(n):
@@ -82,9 +115,9 @@ def check_feasibility(A, n):
     '''
     #Calculate equilibrium signs to check for feasibility
     eq_prop = np.linalg.inv(A) @ np.ones(n).reshape(n, 1)
-    if np.all(eq_prop > 0):
-        feasibility = False
-    return feasibility
+    #Check if all have the same sign
+    feasibility = np.all(eq_prop>0) if eq_prop[0] > 0 else np.all(eq_prop < 0)
+    return feasibility 
 
 def check_singularity(A):
     '''
@@ -181,3 +214,63 @@ def find_extinct_indices(plants, plants_rem, soils, soils_rem):
                                         return_indices = True)
 
     return np.intersect1d(ext_plant_ind, ext_soil_ind)
+
+def integrate_n(A, B, n, tol, n_int_max, epsilon):
+    '''
+    Integrate system as many times as needed until. Keep integrating system 
+    until (1) it diverges, (2) it converges to an equilibrium with 2 or less 
+    than 2 species, or (3) the number of integration cycles surpasses our 
+    limit. 
+    '''
+    #Integrate
+    plant_ab, soil_ab, t = integrate_PSF(model_timescale, [1, 2000], 2*n*[1/n], 
+                                         (A, B, n, epsilon))
+    #Check for convergence 
+    convergence = check_convergence(plant_ab[:, -1], soil_ab[:, -1],
+                                    tol)
+    if not convergence:
+        #If integration doesn't converge, we skip it.
+        return 0
+    #Set extinctions to 0
+    plant_ab[plant_ab[:, -1] < tol, :] = 0
+    #Check if we have reached equilibrium
+    equilibrium = check_equilibrium_bis(plant_ab[:, -1], soil_ab[:, -1])
+    #Initialize counter for number of integrations
+    n_int = 0
+    while (not equilibrium) & (n_int <= n_int_max):
+        #Set initial conditions to the final state of previous 
+        #integration
+        z0 = list(np.hstack([plant_ab[:, -1], soil_ab[:, -1]]))
+        #Re-integrate system
+        plant_ab, soil_ab, t = integrate_PSF(model_timescale, [1, 2000], z0, 
+                                             (A, B, n, epsilon))
+        #Increase integration cycle counter
+        n_int += 1
+        #Check for convergence 
+        convergence = check_convergence(plant_ab[:, -1], 
+                                        soil_ab[:, -1], tol)
+        if not convergence:
+            return 0
+        else:
+            #Check equilibrium
+            equilibrium = check_equilibrium_bis(plant_ab[:, -1], 
+                                            soil_ab[:, -1])
+    return(plant_ab, soil_ab, t)
+
+def sample_A(n):
+    '''
+    Sample a feasible and non-singular A
+    '''
+    #Sample random matrix A 
+    A_cand = np.random.random(size = (n, n))
+    #Ensure that A is not singular and feasible
+    singular = check_singularity(A_cand)
+    feasible = check_feasibility(A_cand, n)
+    while singular or not feasible:
+        A_cand = np.random.random(size = (n, n))
+        singular = check_singularity(A_cand)
+        feasible = check_feasibility(A_cand, n)
+    return A_cand
+
+def search_next(n):
+    return 1 if n==2 else 2

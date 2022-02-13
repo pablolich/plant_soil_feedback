@@ -50,4 +50,4 @@ data %>% ggplot(aes(x = num_species,
   xlab("Number of species") + 
   ylab("Proportion of communities")
 
-ggsave('../sandbox/histogram_collapse.pdf')
+ggsave('../sandbox/histogram_collapse_feas.pdf')

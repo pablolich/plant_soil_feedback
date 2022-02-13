@@ -24,3 +24,7 @@ modify integrate_PSF so that it performs multiple cycles of integration until
 convergence, or until max_cycle is reached. 
 Can make it recursive!
 Change function of equilibrium by not making it depend on the number of species left, but the number of species whose abundances are 0!
+
+#### Feb 09,2022
+
+Integrate for several epsilons on each simulation that ends in 1 or 2 species while checking for convergence. Add one more loop layer. Only get simulations where three epsilon converge. figure out what to do with soil ploting. Plot with transparency/dashed
